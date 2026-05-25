@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>戀愛情感導航系統</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root{--pink:#ff5c9a;--rose:#e63b61;--red:#c82848;--blush:#fff0f5;--cream:#fffaf7;--paper:#ffffff;--ink:#38212a;--muted:#8f6671;--gold:#c59a54;--sage:#738f78;--shadow:0 18px 42px rgba(198,55,91,.16);--line:rgba(198,40,72,.16);--bg-start:#fff8f9;--bg-mid:#ffe7ef;--bg-end:#fffdfb;--halo-a:rgba(255,182,198,.52);--halo-b:rgba(255,120,149,.26);--mesh-a:rgba(197,154,84,.07);--mesh-b:rgba(255,92,154,.035);--ring-a:rgba(197,154,84,.22);--ring-b:rgba(198,40,72,.08);--wash:rgba(255,92,154,.28);--track:#f2d5dc}
 body[data-theme="male"]{--pink:#5b9bd5;--rose:#3a6ea8;--red:#1f5f99;--blush:#edf7ff;--cream:#f7fbff;--ink:#1e2d3c;--muted:#637b91;--gold:#b89454;--sage:#5f8b8a;--shadow:0 18px 42px rgba(31,95,153,.17);--line:rgba(31,95,153,.16);--bg-start:#f7fbff;--bg-mid:#dfefff;--bg-end:#fffdf8;--halo-a:rgba(130,185,232,.5);--halo-b:rgba(68,132,191,.26);--mesh-a:rgba(184,148,84,.08);--mesh-b:rgba(31,95,153,.045);--ring-a:rgba(184,148,84,.25);--ring-b:rgba(31,95,153,.1);--wash:rgba(91,155,213,.32);--track:#d5e5f4}
@@ -172,7 +172,7 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
 @keyframes themeLift{0%{filter:saturate(.7);transform:translateY(8px)}100%{filter:saturate(1);transform:translateY(0)}}
 @keyframes symbolPop{0%{transform:scale(.72) rotate(-8deg)}70%{transform:scale(1.18) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
 
-/* ── PDF 印刷版樣式(由 JS 將容器放到 off-screen 處渲染) ── */
+/* ── JPG 匯出版樣式(由 JS 將容器放到 off-screen 處渲染) ── */
 .pdf-page{width:794px;padding:40px 48px;background:#ffffff;color:#222;font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;line-height:1.7}
 .pdf-page .pdf-h1{font-size:26px;font-weight:900;color:#c82848;letter-spacing:2px;margin-bottom:4px;text-align:center}
 .pdf-page .pdf-sub{font-size:12px;color:#888;text-align:center;letter-spacing:2px;margin-bottom:20px}
@@ -270,7 +270,7 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
         <div class="welcome-feature"><span class="wf-icon">🏷️</span>挑選 / 自訂特質標籤</div>
         <div class="welcome-feature"><span class="wf-icon">📊</span>李克特量表量化感受</div>
         <div class="welcome-feature"><span class="wf-icon">🧠</span>AI 深度情感分析</div>
-        <div class="welcome-feature"><span class="wf-icon">📥</span>下載專屬 PDF 報告</div>
+        <div class="welcome-feature"><span class="wf-icon">📥</span>下載專屬 JPG 報告</div>
         <div class="welcome-feature" style="grid-column:1/-1;justify-content:center;text-align:center"><span class="wf-icon">🥊</span>進入模擬實戰道場練習對話</div>
       </div>
       <div class="welcome-cta">
@@ -358,7 +358,7 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
       <div id="reportCards"></div>
     </div>
     <div class="btn-row" style="margin-top:36px">
-      <button class="btn-pdf" id="btnPdf" onclick="downloadPdf()">📥 下載 PDF 報告</button>
+      <button class="btn-pdf" id="btnJpg" onclick="downloadJpg()">📥 下載 JPG 報告</button>
       <button class="btn-primary" onclick="enterChat()">進入模擬實戰道場 🥊</button>
     </div>
     <p style="color:#8f6671;font-size:12px;margin-top:12px;text-align:center">與 AI 模擬對象練習對話</p>
@@ -403,7 +403,7 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
       </div>
 
       <div class="btn-row" style="margin-top:24px">
-        <button class="btn-pdf" onclick="downloadPdf()">📥 再下載一次報告</button>
+        <button class="btn-pdf" onclick="downloadJpg()">📥 再下載一次報告</button>
       </div>
       <div class="btn-row" style="margin-top:10px">
         <button class="btn-ghost" onclick="goStep(4)">← 再看一次診斷</button>
@@ -853,11 +853,11 @@ function buildReport(report,scores){
 }
 
 // ══════════════════════════════════════
-// PDF EXPORT
+// JPG EXPORT
 // ══════════════════════════════════════
 function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function buildPdfHtml(a){
+function buildJpgHtml(a){
   const dimRows=Object.entries(DIM_META).map(([k,m])=>
     `<div class="pdf-dim-cell"><span class="n">${m.name}</span><span class="v" style="color:${m.color}">${a.scores[k]}%</span></div>`
   ).join('');
@@ -896,13 +896,13 @@ function buildPdfHtml(a){
   </div>`;
 }
 
-async function downloadPdf(){
+async function downloadJpg(){
   if(!lastAnalysis){alert('還沒有分析資料,請先完成 AI 分析');return;}
-  if(typeof html2pdf==='undefined'){alert('PDF 函式庫尚未載入,請確認網路連線後重新整理頁面');return;}
-  const btn=document.getElementById('btnPdf');
+  if(typeof html2canvas==='undefined'){alert('JPG 匯出函式庫尚未載入,請確認網路連線後重新整理頁面');return;}
+  const btn=document.getElementById('btnJpg');
   btn.disabled=true;
   const origText=btn.textContent;
-  btn.textContent='⏳ 產生 PDF 中...';
+  btn.textContent='⏳ 產生 JPG 中...';
 
   // 暫存並覆寫 body/html 的 overflow,避免響應式 overflow-x:hidden 把 html2canvas 的渲染區裁掉
   const _bo=document.body.style.overflow,_box=document.body.style.overflowX;
@@ -922,7 +922,7 @@ async function downloadPdf(){
     z-index:-2147483648;pointer-events:none;opacity:1;
     transform:translateZ(0);
   `;
-  container.innerHTML=buildPdfHtml(lastAnalysis);
+  container.innerHTML=buildJpgHtml(lastAnalysis);
   document.body.appendChild(container);
   const target=container.querySelector('.pdf-page');
 
@@ -930,33 +930,32 @@ async function downloadPdf(){
   try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
   await new Promise(r=>setTimeout(r,500));
 
-  const filename=`戀愛情感診斷報告_${(new Date()).toISOString().slice(0,10)}.pdf`;
+  const filename=`戀愛情感診斷報告_${(new Date()).toISOString().slice(0,10)}.jpg`;
   try{
     // 量測實際高度後,把完整尺寸明確告訴 html2canvas
     const rect=target.getBoundingClientRect();
     const h=Math.ceil(rect.height);
-    await html2pdf().set({
-      margin:[8,0,8,0],
-      filename,
-      image:{type:'jpeg',quality:0.96},
-      html2canvas:{
-        scale:2,
-        useCORS:true,
-        allowTaint:true,
-        backgroundColor:'#ffffff',
-        width:794,
-        height:h,
-        windowWidth:794,
-        windowHeight:Math.max(h,window.innerHeight),
-        x:0,y:0,
-        scrollX:0,scrollY:0,
-      },
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true},
-      pagebreak:{mode:['css','legacy']},
-    }).from(target).save();
+    const canvas=await html2canvas(target,{
+      scale:2,
+      useCORS:true,
+      allowTaint:true,
+      backgroundColor:'#ffffff',
+      width:794,
+      height:h,
+      windowWidth:794,
+      windowHeight:Math.max(h,window.innerHeight),
+      x:0,y:0,
+      scrollX:0,scrollY:0,
+    });
+    const link=document.createElement('a');
+    link.download=filename;
+    link.href=canvas.toDataURL('image/jpeg',0.96);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }catch(err){
     console.error(err);
-    alert('PDF 產生失敗:'+(err&&err.message?err.message:err));
+    alert('JPG 產生失敗:'+(err&&err.message?err.message:err));
   }finally{
     document.body.removeChild(container);
     // 還原 overflow 與滾動
