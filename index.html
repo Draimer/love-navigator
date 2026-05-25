@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>戀愛情感導航系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{--pink:#ff5c9a;--rose:#e63b61;--red:#c82848;--blush:#fff0f5;--cream:#fffaf7;--paper:#ffffff;--ink:#38212a;--muted:#8f6671;--gold:#c59a54;--sage:#738f78;--shadow:0 18px 42px rgba(198,55,91,.16);--line:rgba(198,40,72,.16);--bg-start:#fff8f9;--bg-mid:#ffe7ef;--bg-end:#fffdfb}
+*{box-sizing:border-box;margin:0;padding:0}::selection{background:rgba(255,92,154,.22)}
+html{background:var(--bg-start)}
+body{min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(255,182,198,.52) 0 18%,transparent 36%),radial-gradient(circle at 88% 10%,rgba(255,120,149,.26) 0 14%,transparent 34%),linear-gradient(155deg,var(--bg-start) 0%,var(--bg-mid) 44%,var(--bg-end) 100%);color:var(--ink);font-family:'Noto Sans TC',sans-serif;overflow-x:hidden}
+body::before,body::after{content:'';position:fixed;z-index:-1;pointer-events:none}
+body::before{inset:0;background:repeating-linear-gradient(90deg,rgba(197,154,84,.07) 0 1px,transparent 1px 34px),repeating-linear-gradient(0deg,rgba(255,92,154,.035) 0 1px,transparent 1px 34px);mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 72%)}
+body::after{width:360px;height:360px;right:-150px;top:72px;border:1px solid rgba(197,154,84,.22);border-radius:50%;box-shadow:inset 0 0 0 18px rgba(255,255,255,.28),inset 0 0 0 20px rgba(198,40,72,.08)}
+.container{width:min(100%,640px);margin:0 auto;padding:24px 16px calc(80px + env(safe-area-inset-bottom));position:relative}
+.header{text-align:center;margin-bottom:28px;animation:fadeUp .8s ease;position:relative;padding:28px 18px 24px;border-radius:160px 160px 24px 24px;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,246,249,.8));border:1px solid rgba(197,154,84,.28);box-shadow:var(--shadow)}
+.header::before{content:'';position:absolute;inset:8px;border:1px solid rgba(198,40,72,.16);border-radius:150px 150px 18px 18px;pointer-events:none}
+.header::after{content:'✦  ❦  ✦';position:absolute;left:50%;bottom:-13px;transform:translateX(-50%);padding:0 14px;background:var(--bg-mid);color:var(--gold);font-size:15px;letter-spacing:8px;white-space:nowrap}
+.header-emoji{width:58px;height:58px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;font-size:32px;background:linear-gradient(135deg,var(--pink),var(--red));color:#fff;box-shadow:0 10px 24px rgba(198,40,72,.22)}
+.header h1{font-size:clamp(25px,8vw,34px);font-weight:900;letter-spacing:1px;color:var(--red);line-height:1.2}
+.header .subtitle{color:var(--muted);font-size:12px;margin-top:9px;letter-spacing:1.5px}
+.step-dots{display:flex;justify-content:center;gap:8px;margin-top:18px}
+.step-dot{height:9px;border-radius:999px;transition:all .4s ease;background:#f3c9d4;border:1px solid rgba(198,40,72,.08)}
+.step-dot.active{width:34px!important;background:linear-gradient(90deg,var(--red),var(--pink))!important}
+.step-dot.done{background:var(--pink)!important}
+.step{display:none;animation:fadeUp .6s ease}.step.visible{display:block}
+.step h2{font-size:clamp(19px,5.6vw,24px);font-weight:900;margin-bottom:8px;letter-spacing:0;color:var(--ink);line-height:1.35}
+.step .desc{color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.75}
+.tags-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.tag-chip{min-height:48px;display:inline-flex;align-items:center;justify-content:flex-start;gap:7px;padding:10px 13px;border-radius:16px;border:1.5px solid rgba(198,40,72,.14);background:rgba(255,255,255,.72);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;transition:all .25s ease;font-family:'Noto Sans TC',sans-serif;letter-spacing:0;user-select:none;position:relative;box-shadow:0 8px 20px rgba(198,40,72,.08);text-align:left}
+.tag-chip:hover{transform:translateY(-1px);border-color:rgba(230,59,97,.32)}
+.tag-chip .tag-emoji{font-size:17px;line-height:1}
+.tag-chip.selected{border-color:var(--red);background:linear-gradient(135deg,#fff,var(--blush));color:var(--red);box-shadow:0 12px 26px rgba(198,40,72,.16)}
+.tag-chip.disabled{opacity:.38;cursor:not-allowed;pointer-events:none}
+.tag-chip.custom{border-style:dashed;border-color:rgba(197,154,84,.62)}
+.tag-chip.custom.selected{border-style:solid;border-color:var(--gold);background:#fff8ec}
+.tag-chip .del-x{margin-left:auto;opacity:.55;font-size:12px;padding:0 5px;border-radius:50%;line-height:1.5}
+.tag-chip .del-x:hover{opacity:1;background:rgba(198,40,72,.12)}
+.tag-count{color:var(--muted);font-size:13px;margin-bottom:16px;text-align:center}
+.add-tag-wrap{margin-bottom:26px}
+.add-tag-toggle{width:100%;padding:13px;border-radius:16px;border:1.5px dashed rgba(198,40,72,.24);background:rgba(255,255,255,.62);color:var(--red);font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans TC',sans-serif;letter-spacing:0;transition:all .25s ease}
+.add-tag-toggle:hover{background:#fff;border-color:rgba(198,40,72,.42)}
+.add-tag-form{margin-top:12px;padding:16px;background:rgba(255,255,255,.82);border:1px solid rgba(198,40,72,.14);border-radius:18px;display:none;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.add-tag-form.open{display:flex}
+.add-tag-form .form-row{display:flex;gap:8px;align-items:center}
+.add-tag-form input[type=text],.add-tag-form select{padding:12px 13px;border-radius:12px;border:1px solid rgba(198,40,72,.18);background:#fff;color:var(--ink);font-size:14px;outline:none;font-family:'Noto Sans TC',sans-serif;min-width:0}
+.add-tag-form input[type=text]:focus,.add-tag-form select:focus,.cfg-row input:focus,.cfg-row select:focus,.chat-input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,92,154,.14)}
+.add-tag-form input.name-input{flex:1}
+.add-tag-form input.emoji-input{width:64px;text-align:center;font-size:18px;font-family:'Noto Color Emoji','Apple Color Emoji',sans-serif}
+.add-tag-form select{flex:1;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg fill="%2338212a" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');background-repeat:no-repeat;background-position:right 8px center;background-size:18px;padding-right:30px}
+.add-tag-form .form-btns{display:flex;gap:8px;margin-top:4px}
+.add-tag-form button{flex:1;padding:12px;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans TC',sans-serif;letter-spacing:0;transition:all .25s ease}
+.add-tag-form .btn-add{background:linear-gradient(135deg,var(--red),var(--pink));color:#fff}
+.add-tag-form .btn-cancel{background:#fff1f5;color:var(--muted)}
+.add-tag-form .err{color:var(--red);font-size:12px;min-height:14px}
+.btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-primary,.btn-pdf,.btn-ghost{min-height:50px;border:none;border-radius:999px;font-size:15px;font-weight:900;cursor:pointer;font-family:'Noto Sans TC',sans-serif;letter-spacing:0;transition:all .3s ease}
+.btn-primary{padding:15px 28px;background:linear-gradient(135deg,var(--red),var(--pink));color:#fff;box-shadow:0 10px 22px rgba(198,40,72,.22)}
+.btn-primary:hover,.btn-pdf:hover{transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-pdf{padding:15px 28px;background:linear-gradient(135deg,#fff,var(--blush));color:var(--red);border:1px solid rgba(198,40,72,.22);box-shadow:0 10px 22px rgba(198,40,72,.12)}
+.btn-pdf:disabled{opacity:.6;cursor:wait}
+.btn-ghost{padding:15px 28px;background:#fff;color:var(--muted);border:1px solid rgba(198,40,72,.16)}
+.slider-row{margin-bottom:24px;padding:16px;background:rgba(255,255,255,.74);border:1px solid rgba(198,40,72,.12);border-radius:18px;box-shadow:0 8px 20px rgba(198,40,72,.07)}
+.slider-header{display:grid;grid-template-columns:1fr;gap:6px;margin-bottom:10px;font-size:14px}
+.slider-label{color:var(--ink);font-weight:800}
+.slider-dim{margin-left:7px;font-size:12px;opacity:.9}
+.slider-val{font-weight:900;font-family:'JetBrains Mono',monospace}
+.slider-input{width:100%;height:7px;appearance:none;-webkit-appearance:none;border-radius:999px;outline:none;cursor:pointer;display:block}
+.slider-input::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;cursor:pointer;border:4px solid var(--red);box-shadow:0 3px 12px rgba(198,40,72,.32)}
+.slider-input::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;cursor:pointer;border:4px solid var(--red)}
+.likert-scale{display:flex;justify-content:space-between;margin-top:9px;padding:0 2px;position:relative}
+.likert-scale .lk{flex:1;text-align:center;font-size:11px;color:#a9878f;font-family:'Noto Sans TC',sans-serif;position:relative;padding-top:8px;transition:color .25s ease,font-weight .25s ease}
+.likert-scale .lk::before{content:'';position:absolute;top:0;left:50%;width:1px;height:4px;background:rgba(198,40,72,.2);transform:translateX(-50%)}
+.likert-scale .lk:first-child{text-align:left}.likert-scale .lk:first-child::before{left:1px;transform:none}
+.likert-scale .lk:last-child{text-align:right}.likert-scale .lk:last-child::before{left:auto;right:1px;transform:none}
+.likert-scale .lk.active{font-weight:900}
+.radar-wrap{background:rgba(255,255,255,.78);border:1px solid rgba(197,154,84,.24);border-radius:24px;padding:14px 8px 0;margin-bottom:24px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.radar-wrap::before{content:'';position:absolute;inset:8px;border:1px solid rgba(198,40,72,.12);border-radius:18px;pointer-events:none}
+.radar-wrap canvas{max-height:260px;position:relative}
+.radar-legend{display:flex;justify-content:center;gap:10px 14px;padding:8px 0 14px;flex-wrap:wrap;position:relative}
+.radar-legend span{font-size:12px;font-weight:800}
+.obstacle-list{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+.obstacle-card{width:100%;display:flex;align-items:center;gap:12px;padding:14px 15px;border-radius:18px;border:1.5px solid rgba(198,40,72,.14);background:rgba(255,255,255,.76);color:var(--ink);font-size:15px;font-weight:700;cursor:pointer;transition:all .25s ease;font-family:'Noto Sans TC',sans-serif;text-align:left;box-shadow:0 8px 20px rgba(198,40,72,.07)}
+.obstacle-card .ob-icon{font-size:21px;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff1f5;flex-shrink:0;border:1px solid rgba(198,40,72,.12)}
+.obstacle-card.selected{border-color:var(--red);color:var(--red);font-weight:900;background:#fff}
+.obstacle-card.selected .ob-icon{background:var(--blush)}
+.cfg-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:12px;background:#fff;border-radius:14px;border:1px solid rgba(198,40,72,.13);transition:border-color .3s ease}
+.cfg-row.connected{border-color:rgba(115,143,120,.42)}
+.cfg-row label{font-size:13px;color:var(--muted);font-weight:800;white-space:nowrap}
+.cfg-row input,.cfg-row select{flex:1;padding:10px 12px;border-radius:10px;border:1px solid rgba(198,40,72,.16);background:#fffafc;color:var(--ink);font-size:13px;outline:none;font-family:'JetBrains Mono',monospace;min-width:0}
+.cfg-row select{cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg fill="%2338212a" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');background-repeat:no-repeat;background-position:right 8px center;background-size:18px;padding-right:28px}
+.cfg-row .check{color:var(--sage);font-size:12px;font-weight:900}
+.cfg-section{margin-bottom:24px;padding:16px;background:rgba(255,255,255,.72);border-radius:20px;border:1px solid rgba(197,154,84,.22);box-shadow:var(--shadow)}
+.cfg-section-title{font-size:14px;font-weight:900;color:var(--red);margin-bottom:14px;letter-spacing:0}
+.cfg-help{font-size:12px;color:var(--muted);line-height:1.85;margin-top:10px;padding:10px 12px;background:#fff8e8;border-radius:10px;border:1px solid rgba(197,154,84,.2)}
+.cfg-help strong{color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.cfg-help a{color:var(--red);font-weight:800;text-decoration:none;border-bottom:1px dashed var(--red)}
+.cfg-help a:hover{background:rgba(198,40,72,.08)}
+.type-badge{text-align:center;padding:34px 22px;margin-bottom:24px;border-radius:130px 130px 22px 22px;position:relative;overflow:hidden;opacity:0;transform:scale(.9);transition:all .7s cubic-bezier(.4,0,.2,1);background:linear-gradient(180deg,#fff,#fff3f6);border:1px solid rgba(197,154,84,.32);box-shadow:var(--shadow)}
+.type-badge.show{opacity:1;transform:scale(1)}
+.type-badge::before{content:'';position:absolute;inset:9px;border:1px solid rgba(198,40,72,.14);border-radius:116px 116px 16px 16px;pointer-events:none}
+.type-badge::after{content:'❦';position:absolute;left:50%;top:10px;transform:translateX(-50%);color:var(--gold);font-size:20px}
+.type-badge .type-emoji{font-size:52px;margin:6px 0 12px}
+.type-badge .type-label{font-size:12px;color:var(--muted);letter-spacing:2px;margin-bottom:6px}
+.type-badge .type-name{font-size:clamp(25px,7vw,31px);font-weight:900;letter-spacing:1px;margin-bottom:13px;color:var(--red)}
+.type-badge .type-desc{font-size:14px;color:#69424d;line-height:1.85;max-width:420px;margin:0 auto}
+.dim-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
+.dim-card{padding:14px 15px;border-radius:18px;background:rgba(255,255,255,.78);border:1px solid rgba(198,40,72,.12);box-shadow:0 8px 20px rgba(198,40,72,.07)}
+.dim-card .dim-name{font-size:13px;opacity:.9;margin-bottom:6px;font-weight:800}
+.dim-card .dim-val{font-size:22px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.report-card{background:rgba(255,255,255,.82);border:1px solid rgba(198,40,72,.13);border-radius:20px;padding:22px 18px;margin-bottom:16px;opacity:0;transform:translateY(20px);transition:all .6s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow)}
+.report-card.show{opacity:1;transform:translateY(0)}
+.report-card-title{font-size:17px;font-weight:900;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.report-card-title .rc-icon{font-size:22px}
+.report-card p{color:#5d3a45;line-height:1.85;font-size:15px;white-space:pre-wrap}
+.analyzing{text-align:center;padding:80px 0}
+.analyzing .brain{font-size:48px;animation:float 1.5s ease infinite;margin-bottom:24px}
+.analyzing .text{font-size:16px;color:var(--red);animation:pulse 1.2s ease infinite;letter-spacing:2px;font-weight:900}
+.analyzing .sub{font-size:13px;color:var(--muted);margin-top:8px}
+.chat-disclaimer{color:#8f5b12;font-size:11px;margin-bottom:16px;line-height:1.65;background:#fff8e8;padding:11px 13px;border-radius:14px;border:1px solid rgba(197,154,84,.2)}
+.chat-area{background:rgba(255,255,255,.78);border:1px solid rgba(198,40,72,.13);border-radius:22px;padding:14px;min-height:340px;max-height:56vh;overflow-y:auto;margin-bottom:14px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.chat-empty{flex:1;display:flex;align-items:center;justify-content:center;color:#b38a94;font-size:14px;text-align:center;line-height:1.8}
+.chat-bubble-wrap{display:flex;margin-bottom:12px;padding:0 4px}
+.chat-bubble-wrap.user{justify-content:flex-end}
+.chat-bubble-wrap.assistant{justify-content:flex-start}
+.chat-bubble{max-width:82%;padding:12px 16px;border-radius:18px;font-size:15px;line-height:1.7;word-break:break-word;font-family:'Noto Sans TC',sans-serif}
+.chat-bubble-wrap.user .chat-bubble{background:linear-gradient(135deg,var(--red),var(--pink));color:#fff;border-bottom-right-radius:5px}
+.chat-bubble-wrap.assistant .chat-bubble{background:#fff;color:#51313a;border:1px solid rgba(198,40,72,.12);border-bottom-left-radius:5px}
+.chat-typing{padding:8px 16px;color:var(--muted);font-size:13px;animation:pulse 1s ease infinite}
+.chat-input-row{display:flex;gap:10px}
+.chat-input{flex:1;padding:14px 16px;border-radius:999px;border:1px solid rgba(198,40,72,.16);background:#fff;color:var(--ink);font-size:15px;outline:none;font-family:'Noto Sans TC',sans-serif;min-width:0}
+.chat-input::placeholder{color:#b7969e}
+.back-link{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;font-family:'Noto Sans TC',sans-serif;margin-top:24px}
+.error-msg{color:var(--red);font-size:13px;text-align:center;margin-top:12px;line-height:1.6}
+@media (max-width:420px){
+  .container{padding:18px 12px calc(72px + env(safe-area-inset-bottom))}
+  .header{padding:24px 14px 22px;margin-bottom:26px}
+  .tags-grid{grid-template-columns:1fr}
+  .tag-chip{width:100%;font-size:14px}
+  .btn-row{display:grid;grid-template-columns:1fr;gap:9px}
+  .btn-primary,.btn-pdf,.btn-ghost{width:100%;padding:14px 18px}
+  .add-tag-form .form-row,.chat-input-row{align-items:stretch}
+  .add-tag-form .form-row:first-child{display:grid;grid-template-columns:1fr 64px}
+  .cfg-row{align-items:flex-start;flex-direction:column;gap:7px}
+  .cfg-row input,.cfg-row select{width:100%}
+  .dim-summary{grid-template-columns:1fr}
+  .likert-scale .lk{font-size:10px}
+  .chat-bubble{max-width:90%}
+  #btnSend{width:auto!important;min-width:72px;padding:12px 16px!important}
+}
+@media (min-width:700px){
+  .container{padding-top:44px}
+  .header{margin-bottom:42px}
+  .tags-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .slider-header{grid-template-columns:1fr auto;align-items:end}
+  .obstacle-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ── PDF 印刷版樣式(由 JS 將容器放到 off-screen 處渲染) ── */
+.pdf-page{width:794px;padding:40px 48px;background:#ffffff;color:#222;font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;line-height:1.7}
+.pdf-page .pdf-h1{font-size:26px;font-weight:900;color:#c82848;letter-spacing:2px;margin-bottom:4px;text-align:center}
+.pdf-page .pdf-sub{font-size:12px;color:#888;text-align:center;letter-spacing:2px;margin-bottom:20px}
+.pdf-page .pdf-meta{font-size:12px;color:#999;text-align:center;border-bottom:1px solid #eee;padding-bottom:14px;margin-bottom:24px}
+.pdf-page .pdf-type{text-align:center;padding:24px;border:2px solid #e63b61;border-radius:14px;margin-bottom:24px;background:#fff5fa}
+.pdf-page .pdf-type-emoji{font-size:42px;line-height:1.2}
+.pdf-page .pdf-type-lbl{font-size:11px;color:#888;letter-spacing:3px;margin-top:4px}
+.pdf-page .pdf-type-name{font-size:24px;font-weight:900;color:#c82848;margin:6px 0 10px}
+.pdf-page .pdf-type-desc{font-size:13px;color:#555;line-height:1.7;max-width:480px;margin:0 auto}
+.pdf-page .pdf-section-title{font-size:13px;font-weight:700;color:#666;letter-spacing:2px;margin:24px 0 10px;border-left:4px solid #e63b61;padding-left:10px}
+.pdf-page .pdf-dim-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
+.pdf-page .pdf-dim-cell{padding:10px 14px;background:#f7f7fa;border-radius:8px;display:flex;justify-content:space-between;align-items:center}
+.pdf-page .pdf-dim-cell .n{font-size:13px;color:#555}
+.pdf-page .pdf-dim-cell .v{font-size:18px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.pdf-page .pdf-tag-list{font-size:12px;color:#666;line-height:1.9}
+.pdf-page .pdf-tag-list .tg{display:inline-block;background:#fbeef5;color:#a82577;padding:2px 10px;border-radius:20px;margin:2px;font-size:11px}
+.pdf-page .pdf-obstacle{padding:12px 16px;background:#fff7eb;border-left:4px solid #c59a54;border-radius:6px;font-size:13px;color:#7a4400;margin-bottom:6px}
+.pdf-page .pdf-card{border:1px solid #eee;border-left:4px solid #e63b61;border-radius:8px;padding:16px 18px;margin-bottom:12px;page-break-inside:avoid;background:#fff}
+.pdf-page .pdf-card.c2{border-left-color:#ff5c9a}
+.pdf-page .pdf-card.c3{border-left-color:#c59a54}
+.pdf-page .pdf-card.c4{border-left-color:#c82848}
+.pdf-page .pdf-card .pc-title{font-size:14px;font-weight:700;margin-bottom:8px;color:#333}
+.pdf-page .pdf-card .pc-body{font-size:13px;color:#444;line-height:1.85;white-space:pre-wrap}
+.pdf-page .pdf-footer{margin-top:30px;padding-top:14px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center}
+
+/* ── Welcome / Landing 首頁樣式 ── */
+.welcome-hero{text-align:center;padding:8px 4px 0;animation:fadeUp .8s ease}
+.welcome-tagline{font-size:15px;color:var(--ink);line-height:1.95;margin:6px auto 24px;max-width:460px;font-weight:600}
+.welcome-tagline strong{color:var(--red);font-weight:900}
+.welcome-features{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:0 auto 28px;max-width:520px}
+.welcome-feature{padding:14px 12px;background:rgba(255,255,255,.82);border:1px solid rgba(198,40,72,.14);border-radius:16px;font-size:13px;color:var(--ink);font-weight:800;display:flex;align-items:center;gap:9px;box-shadow:0 8px 18px rgba(198,40,72,.07);text-align:left;line-height:1.4}
+.welcome-feature .wf-icon{font-size:20px;flex-shrink:0;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#fff,var(--blush));display:grid;place-items:center;border:1px solid rgba(198,40,72,.12)}
+.welcome-cta{margin:14px 0 16px}
+.welcome-cta .btn-primary{padding:18px 48px;font-size:16px;letter-spacing:3px;min-height:56px;animation:pulseBtn 2.4s ease infinite}
+@keyframes pulseBtn{0%,100%{box-shadow:0 10px 22px rgba(198,40,72,.22)}50%{box-shadow:0 14px 32px rgba(198,40,72,.4)}}
+.welcome-note{font-size:11px;color:var(--muted);margin:16px auto 0;line-height:1.7;max-width:380px;background:#fff8e8;padding:10px 14px;border-radius:12px;border:1px solid rgba(197,154,84,.2)}
+@media (max-width:420px){
+  .welcome-features{grid-template-columns:1fr}
+  .welcome-cta .btn-primary{width:100%;padding:16px 24px}
+}
+
+/* ── 祝福頁(Step 6 / GoodLuck)── */
+.goodluck-hero{text-align:center;padding:8px 4px;animation:fadeUp .9s ease}
+.gl-emoji{font-size:46px;letter-spacing:14px;margin:6px 0 16px;animation:float 2.4s ease infinite}
+.gl-title{font-size:clamp(28px,8.5vw,38px);font-weight:900;color:var(--red);letter-spacing:3px;margin-bottom:8px;line-height:1.3}
+.gl-subtitle{font-size:14px;color:var(--muted);font-weight:700;margin-bottom:28px;letter-spacing:1px;line-height:1.7}
+.gl-message{background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,246,249,.85));border:1px solid rgba(197,154,84,.32);border-radius:24px;padding:28px 22px;box-shadow:var(--shadow);margin-bottom:18px;text-align:center;position:relative}
+.gl-message::before{content:'';position:absolute;inset:9px;border:1px solid rgba(198,40,72,.14);border-radius:18px;pointer-events:none}
+.gl-message::after{content:'❦';position:absolute;left:50%;top:-12px;transform:translateX(-50%);background:var(--bg-mid);color:var(--gold);font-size:18px;padding:0 12px}
+.gl-message p{font-size:15px;color:var(--ink);line-height:1.95;margin-bottom:14px;font-weight:500;position:relative}
+.gl-message p:last-child{margin-bottom:0;color:var(--red);font-weight:900;font-size:16px;letter-spacing:1px}
+.gl-tips{background:#fff8e8;border:1px solid rgba(197,154,84,.28);border-radius:18px;padding:18px 20px;margin-bottom:18px;text-align:left}
+.gl-tips-title{text-align:center;font-size:12px;color:var(--gold);letter-spacing:3px;margin-bottom:12px;font-weight:900}
+.gl-tips-list{list-style:none;margin:0;padding:0}
+.gl-tips-list li{font-size:13px;color:#69424d;line-height:1.85;padding:5px 0;font-weight:700;display:flex;gap:8px;align-items:flex-start}
+.gl-tips-list li .gl-li-icon{color:var(--gold);font-weight:900;flex-shrink:0}
+.gl-signature{font-size:11px;color:var(--muted);margin-top:28px;letter-spacing:2px;line-height:1.8;opacity:.75}
+.chat-end-row{display:flex;justify-content:center;margin-top:10px;margin-bottom:6px}
+.btn-end{padding:11px 22px;border:1px dashed rgba(198,40,72,.32);border-radius:999px;background:rgba(255,255,255,.6);color:var(--red);font-size:13px;font-weight:800;cursor:pointer;font-family:'Noto Sans TC',sans-serif;letter-spacing:1px;transition:all .25s ease}
+.btn-end:hover{background:#fff;border-style:solid}
+
+/* ── 性別切換(對象的性別)── */
+.gender-toggle{display:flex;flex-direction:column;align-items:center;gap:10px;margin:0 auto 24px;padding:14px 18px;background:rgba(255,255,255,.75);border:1px solid rgba(197,154,84,.28);border-radius:18px;max-width:380px;box-shadow:0 8px 18px rgba(198,40,72,.06)}
+.gender-toggle-lbl{font-size:12px;color:var(--muted);letter-spacing:2px;font-weight:800}
+.gender-options{display:flex;gap:8px;width:100%;background:#fff1f5;padding:5px;border-radius:999px;border:1px solid rgba(198,40,72,.12)}
+.gender-opt{flex:1;padding:11px 14px;border:none;border-radius:999px;background:transparent;color:var(--muted);font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans TC',sans-serif;letter-spacing:1px;transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:6px}
+.gender-opt:hover:not(.active){color:var(--ink)}
+.gender-opt.active[data-gender="female"]{background:linear-gradient(135deg,var(--red),var(--pink));color:#fff;box-shadow:0 6px 14px rgba(198,40,72,.28)}
+.gender-opt.active[data-gender="male"]{background:linear-gradient(135deg,#3a6ea8,#5b9bd5);color:#fff;box-shadow:0 6px 14px rgba(58,110,168,.28)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-emoji">💘</div>
+    <h1>戀愛情感導航系統</h1>
+    <p class="subtitle">LOVE EMOTION NAVIGATOR v1.9 · ☁️ Proxy Mode</p>
+    <div class="step-dots" id="stepDots"></div>
+  </div>
+
+  <div class="step" id="stepWelcome">
+    <div class="welcome-hero">
+      <p class="welcome-tagline" id="welcomeTagline">把你對她的感覺,化為一份<strong>專屬的情感地圖</strong><br>透過 5 個步驟的引導,看清自己、突破阻礙</p>
+
+      <div class="gender-toggle">
+        <span class="gender-toggle-lbl">— 對象的性別 —</span>
+        <div class="gender-options">
+          <button class="gender-opt active" data-gender="female" onclick="setGender('female')">👩 女生</button>
+          <button class="gender-opt" data-gender="male" onclick="setGender('male')">👨 男生</button>
+        </div>
+      </div>
+
+      <div class="welcome-features">
+        <div class="welcome-feature"><span class="wf-icon">🏷️</span>挑選 / 自訂特質標籤</div>
+        <div class="welcome-feature"><span class="wf-icon">📊</span>李克特量表量化感受</div>
+        <div class="welcome-feature"><span class="wf-icon">🧠</span>AI 深度情感分析</div>
+        <div class="welcome-feature"><span class="wf-icon">📥</span>下載專屬 PDF 報告</div>
+        <div class="welcome-feature" style="grid-column:1/-1;justify-content:center;text-align:center"><span class="wf-icon">🥊</span>進入模擬實戰道場練習對話</div>
+      </div>
+      <div class="welcome-cta">
+        <button class="btn-primary" onclick="goStep(1)">開始分析 ✨</button>
+      </div>
+      <p class="welcome-note">⚠️ 這是基於你主觀認知的自我反思工具,不是預測她心意的占卜,請以此作為破冰勇氣的練習,而非決定關係的依據。</p>
+    </div>
+  </div>
+
+  <div class="step" id="step1">
+    <h2 id="step1H2">Step 1 — 她給你的印象是?</h2>
+    <p class="desc" id="step1Desc">選擇最符合她的特質標籤(1 ~ 5 個),也可以自訂新標籤</p>
+    <div class="tags-grid" id="tagsGrid"></div>
+
+    <div class="add-tag-wrap">
+      <button class="add-tag-toggle" onclick="toggleCustomTagForm()" id="addTagToggle">＋ 新增自訂標籤</button>
+      <div class="add-tag-form" id="customTagForm">
+        <div class="form-row">
+          <input type="text" class="name-input" id="customTagName" placeholder="標籤名稱(例如:有神秘感)" maxlength="10">
+          <input type="text" class="emoji-input" id="customTagEmoji" placeholder="✨" maxlength="2" value="✨">
+        </div>
+        <div class="form-row">
+          <select id="customTagDim">
+            <option value="visual">🌸 外貌氣質</option>
+            <option value="connection">💬 聊天共鳴</option>
+            <option value="personality">🤍 個性價值</option>
+            <option value="anxiety">🌡️ 暈船焦慮</option>
+          </select>
+        </div>
+        <div class="err" id="customTagErr"></div>
+        <div class="form-btns">
+          <button class="btn-cancel" onclick="toggleCustomTagForm()">取消</button>
+          <button class="btn-add" onclick="addCustomTag()">新增標籤</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tagCountWrap" style="display:none">
+      <p class="tag-count" id="tagCount"></p>
+      <div class="btn-row"><button class="btn-primary" onclick="goStep(2)">下一步 →</button></div>
+    </div>
+  </div>
+
+  <div class="step" id="step2">
+    <h2>Step 2 — 調整你的感受強度</h2>
+    <p class="desc">拖動滑桿,將你的感覺量化(下方為李克特量表參考)</p>
+    <div class="radar-wrap"><canvas id="radarChart"></canvas><div class="radar-legend" id="radarLegend"></div></div>
+    <div id="slidersWrap"></div>
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="goStep(1)">← 返回</button>
+      <button class="btn-primary" onclick="goStep(3)">下一步 →</button>
+    </div>
+  </div>
+
+  <div class="step" id="step3">
+    <h2>Step 3 — 你覺得最大的阻礙是什麼?</h2>
+    <p class="desc" id="step3Desc">選出你和她之間,目前最讓你卡住的那道牆</p>
+    <div class="obstacle-list" id="obstacleList"></div>
+
+    <div class="cfg-section" style="text-align:center">
+      <div class="cfg-section-title" style="margin-bottom:6px">☁️ AI 引擎已就緒</div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.7;margin:0">使用 <strong style="color:var(--red);font-family:'JetBrains Mono',monospace">gemma4:31b-cloud</strong>　·　由雲端代理運行</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" onclick="goStep(2)">← 返回</button>
+      <button class="btn-primary" id="btnAnalyze" disabled onclick="runAnalysis()">開始 AI 分析 🔍</button>
+    </div>
+    <p class="error-msg" id="analysisError" style="display:none"></p>
+  </div>
+
+  <div class="step" id="stepAnalyzing">
+    <div class="analyzing">
+      <div class="brain">🧠</div>
+      <p class="text" id="analyzingText">AI 模型分析中...</p>
+      <p class="sub" id="analyzingSub">正在呼叫模型生成你的專屬診斷報告</p>
+    </div>
+  </div>
+
+  <div class="step" id="step4">
+    <h2>Step 4 — 情感診斷報告</h2>
+    <p class="desc">由 <span id="reportModelName"></span> 為你生成的深度分析</p>
+    <div id="reportBody">
+      <div id="typeBadge"></div>
+      <div class="dim-summary" id="dimSummary"></div>
+      <div id="reportCards"></div>
+    </div>
+    <div class="btn-row" style="margin-top:36px">
+      <button class="btn-pdf" id="btnPdf" onclick="downloadPdf()">📥 下載 PDF 報告</button>
+      <button class="btn-primary" onclick="enterChat()">進入模擬實戰道場 🥊</button>
+    </div>
+    <p style="color:#8f6671;font-size:12px;margin-top:12px;text-align:center">與 AI 模擬對象練習對話</p>
+  </div>
+
+  <div class="step" id="step5">
+    <h2>Step 5 — 模擬實戰道場</h2>
+    <p class="desc" id="chatTraits" style="margin-bottom:6px"></p>
+    <p class="chat-disclaimer">⚠️ 此為基於你主觀認知的 AI 模擬,真實情況可能有所不同。請作為破冰勇氣的練習,而非預測工具。</p>
+    <div class="chat-area" id="chatArea">
+      <div class="chat-empty" id="chatEmpty">試著打個招呼吧 👋<br>像是「嗨」「最近好嗎」</div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chatInput" placeholder="輸入訊息..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn-primary" style="padding:14px 24px" id="btnSend" onclick="sendChat()">送出</button>
+    </div>
+    <div class="chat-end-row"><button class="btn-end" onclick="endChat()">結束對話 ✦</button></div>
+    <div style="text-align:center"><button class="back-link" onclick="goStep(4)">← 返回診斷報告</button></div>
+  </div>
+
+  <div class="step" id="stepGoodLuck">
+    <div class="goodluck-hero">
+      <div class="gl-emoji">🌸 ✨ 🍀</div>
+      <h2 class="gl-title">祝你好運!</h2>
+      <p class="gl-subtitle">願這份勇氣<br>陪你走到那句「嗨」的盡頭</p>
+
+      <div class="gl-message">
+        <p>你已經完成了大多數人不敢做的事 ——<br>把心裡那團模糊的感覺,化成具體的文字與圖表。</p>
+        <p id="glMsgP2">無論她最後的回應是什麼,<br>你都比進入這個網站之前的自己,<br>更清楚自己想要什麼了。</p>
+        <p>那個量化過的喜歡,真的存在;<br>那份禮貌的客套,也許會慢慢融化。</p>
+        <p>剩下的,就只差一個「嗨」而已。</p>
+      </div>
+
+      <div class="gl-tips">
+        <div class="gl-tips-title">— 給自己的小提醒 —</div>
+        <ul class="gl-tips-list">
+          <li><span class="gl-li-icon">✦</span><span>真實的她,不會完全等同於 AI 模擬中的她</span></li>
+          <li><span class="gl-li-icon">✦</span><span>練習過 ≠ 一定要告白,有勇氣選擇繼續觀察也很好</span></li>
+          <li><span class="gl-li-icon">✦</span><span>不論結果如何,你都更認識「會喜歡這種人的自己」</span></li>
+          <li><span class="gl-li-icon">✦</span><span>她現在也只是個普通的大學女生,你不用緊張到忘記呼吸</span></li>
+        </ul>
+      </div>
+
+      <div class="btn-row" style="margin-top:24px">
+        <button class="btn-pdf" onclick="downloadPdf()">📥 再下載一次報告</button>
+      </div>
+      <div class="btn-row" style="margin-top:10px">
+        <button class="btn-ghost" onclick="goStep(4)">← 再看一次診斷</button>
+        <button class="btn-primary" onclick="restartAll()">重新開始 ✨</button>
+      </div>
+
+      <p class="gl-signature">— Love Emotion Navigator —<br>願你成為更勇敢、更溫柔的自己</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let TAGS=[
+  {id:"pretty",label:"長得很漂亮",dim:"visual",emoji:"✨"},{id:"smile",label:"笑容迷人",dim:"visual",emoji:"😊"},
+  {id:"style",label:"穿搭有品味",dim:"visual",emoji:"👗"},{id:"aura",label:"氣質很好",dim:"visual",emoji:"🌙"},
+  {id:"body",label:"身材很好",dim:"visual",emoji:"💫"},{id:"vibe",label:"很聊得來",dim:"connection",emoji:"💬"},
+  {id:"humor",label:"幽默風趣",dim:"connection",emoji:"😂"},{id:"common",label:"有共同興趣",dim:"connection",emoji:"🎯"},
+  {id:"flow",label:"話題不會冷掉",dim:"connection",emoji:"🔥"},{id:"comfort",label:"和她在一起很自在",dim:"connection",emoji:"☁️"},
+  {id:"kind",label:"善良溫柔",dim:"personality",emoji:"🤍"},{id:"independent",label:"獨立自主",dim:"personality",emoji:"🦋"},
+  {id:"ambitious",label:"認真上進",dim:"personality",emoji:"📚"},{id:"opinionated",label:"有自己的想法",dim:"personality",emoji:"💡"},
+  {id:"responsible",label:"很有責任感",dim:"personality",emoji:"🛡️"},{id:"hotcold",label:"忽冷忽熱",dim:"anxiety",emoji:"🌡️"},
+  {id:"slowreply",label:"訊息回很慢",dim:"anxiety",emoji:"⏳"},{id:"unpredictable",label:"捉摸不定",dim:"anxiety",emoji:"🎭"},
+  {id:"seenzone",label:"已讀不回",dim:"anxiety",emoji:"👻"},{id:"toonice",label:"感覺她對很多人都很好",dim:"anxiety",emoji:"🤔"},
+];
+const DIM_META={visual:{name:"外貌氣質",color:"#e63b61"},connection:{name:"聊天共鳴",color:"#ff5c9a"},personality:{name:"個性價值",color:"#c59a54"},anxiety:{name:"暈船焦慮",color:"#c82848"}};
+const OBSTACLES=[
+  {id:"unsure",label:"不確定她對我有沒有好感",emoji:"❓"},{id:"competitor",label:"身邊好像有競爭對手",emoji:"⚔️"},
+  {id:"nocircle",label:"生活圈沒什麼交集",emoji:"🌍"},{id:"friendzone",label:"怕告白會毀掉朋友關係",emoji:"🤝"},
+  {id:"confidence",label:"覺得自己條件不夠好",emoji:"😞"},{id:"taken",label:"她好像有喜歡的人了",emoji:"💔"},
+  {id:"distance",label:"距離太遠,見面機會少",emoji:"📍"},{id:"shy",label:"個性太內向,不敢開口",emoji:"🫣"},
+  {id:"busy",label:"雙方都太忙,沒時間經營",emoji:"⏰"},{id:"age",label:"年齡差距讓我有顧慮",emoji:"📅"},
+];
+
+// ── 對象的性別(可在歡迎頁切換)──
+let targetGender='female'; // 'female' | 'male'
+function T(){
+  return targetGender==='male'
+    ? {pronoun:'他',noun:'男生',personType:'台灣的大學男生',oppGender:'女'}
+    : {pronoun:'她',noun:'女生',personType:'台灣的大學女生',oppGender:'男'};
+}
+
+// ── 角色基礎人設 — 依對象性別動態生成 ──
+function getBasePersona(){
+  if(targetGender==='male'){
+    return `這個男生是一位台灣的大學男生(約 19~22 歲),學生身分,
+日常生活圍繞在校園、系上活動、社團、打工、與打電動/運動之間。
+他和對方目前還在剛認識/不太熟的階段,所以無論個性如何,
+他的語氣都會帶有大學男生常見的客套與基本禮貌——
+例如不會太快透露太多私事、會用「不好意思」「謝啦」「哈」「真假」「OK」「好喔」
+「欸」「嗯嗯」這類用語,訊息會保持一定的禮貌距離,
+不會像對熟識朋友那樣放飛或開大尺度玩笑。
+即使其他標籤顯示他很熱情或很冷淡,這層「禮貌的初識感」都不會消失。`;
+  }
+  return `這個女生是一位台灣的大學女生(約 19~22 歲),學生身分,
+日常生活圍繞在校園、課業、社團與打工。
+她和對方目前還在剛認識/不太熟的階段,所以無論個性如何,
+她的語氣都會帶有大學生常見的客套與基本禮貌——
+例如不會太快透露太多私事、會用「不好意思」「謝謝」「哈哈」「真的假的」「好啊~」
+「欸欸」「ok ok」這類用語,訊息會保持一定的禮貌距離,
+不會像對熟識朋友那樣放飛。
+即使其他標籤顯示她很熱情或很冷淡,這層「禮貌的初識感」都不會消失。`;
+}
+
+// 切換對象性別 — 同步更新所有靜態文字與依賴的標籤
+function setGender(g){
+  if(g!=='male'&&g!=='female')return;
+  targetGender=g;
+  const p=T().pronoun;
+  // toggle UI
+  document.querySelectorAll('.gender-opt').forEach(b=>b.classList.toggle('active',b.dataset.gender===g));
+  // 歡迎頁標語
+  const wt=document.getElementById('welcomeTagline');
+  if(wt)wt.innerHTML=`把你對${p}的感覺,化為一份<strong>專屬的情感地圖</strong><br>透過 5 個步驟的引導,看清自己、突破阻礙`;
+  // Step 1
+  const h2=document.getElementById('step1H2');if(h2)h2.textContent=`Step 1 — ${p}給你的印象是?`;
+  const d1=document.getElementById('step1Desc');if(d1)d1.textContent=`選擇最符合${p}的特質標籤(1 ~ 5 個),也可以自訂新標籤`;
+  // Step 3
+  const d3=document.getElementById('step3Desc');if(d3)d3.textContent=`選出你和${p}之間,目前最讓你卡住的那道牆`;
+  // Step 6
+  const gl=document.getElementById('glMsgP2');if(gl)gl.innerHTML=`無論${p}最後的回應是什麼,<br>你都比進入這個網站之前的自己,<br>更清楚自己想要什麼了。`;
+  // 更新標籤與阻礙中含「她/他」的字
+  const toonice=TAGS.find(t=>t.id==='toonice');if(toonice)toonice.label=`感覺${p}對很多人都很好`;
+  const unsure=OBSTACLES.find(o=>o.id==='unsure');if(unsure)unsure.label=`不確定${p}對我有沒有好感`;
+  const taken=OBSTACLES.find(o=>o.id==='taken');if(taken)taken.label=`${p}好像有喜歡的人了`;
+  // 重新渲染受影響的清單
+  renderTags();
+  // 重新渲染阻礙(只更新文字,保留 selected 狀態)
+  document.querySelectorAll('.obstacle-card').forEach(b=>{
+    const ob=OBSTACLES.find(o=>o.id===b.dataset.id);
+    if(ob)b.innerHTML=`<span class="ob-icon">${ob.emoji}</span>${ob.label}`;
+  });
+  // 若已在 Step 5,刷新 chatTraits
+  if(currentStep===5){
+    const ct=document.getElementById('chatTraits');
+    if(ct)ct.textContent=`${p}的特質:`+selectedTags.map(id=>TAGS.find(t=>t.id===id).label).join('、');
+  }
+}
+
+// ── 李克特 5 段量表(0~100 對應) ──
+const LIKERT=[
+  {v:0,  label:"完全不"},
+  {v:25, label:"有點"},
+  {v:50, label:"普通"},
+  {v:75, label:"蠻"},
+  {v:100,label:"非常"},
+];
+function likertIndex(v){let best=0,minD=Infinity;LIKERT.forEach((l,i)=>{const d=Math.abs(l.v-v);if(d<minD){minD=d;best=i;}});return best;}
+
+let currentStep=1,selectedTags=[],sliderValues={},selectedObstacle=null;
+let chatHistory=[],chatLoading=false,radarChartInstance=null;
+let generatedPersona='';
+let customTagSeq=0;
+let lastAnalysis=null;
+
+// ══════════════════════════════════════════════════════════════
+// ⚠️ 部署設定:把下方 PROXY_URL 改成你的 Cloudflare Worker 網址
+// 例如:'https://love-proxy.your-account.workers.dev'
+// (Worker 程式碼見 worker.js,部署步驟見 README)
+// ══════════════════════════════════════════════════════════════
+const PROXY_URL='https://YOUR-WORKER.your-account.workers.dev';
+const MODEL_NAME='gemma4:31b-cloud';
+
+function getOllamaConfig(){
+  return {baseUrl:PROXY_URL,headers:{'Content-Type':'application/json'},model:MODEL_NAME,provider:'cloud'};
+}
+function isProxyConfigured(){
+  return PROXY_URL && !PROXY_URL.includes('YOUR-WORKER');
+}
+
+async function callOllama(messages){
+  const cfg=getOllamaConfig();
+  const res=await fetch(`${cfg.baseUrl}/v1/chat/completions`,{
+    method:'POST', headers:cfg.headers,
+    body:JSON.stringify({model:cfg.model,messages,temperature:0.8,stream:false}),
+  });
+  const data=await res.json();
+  if(!res.ok) throw new Error(data.error?.message||JSON.stringify(data.error)||`HTTP ${res.status}`);
+  return data.choices?.[0]?.message?.content||'';
+}
+
+// ── Init ──
+function init(){renderStepDots();renderTags();renderObstacles();goStep(0);}
+
+function goStep(n){
+  if(n===2)initSliders();
+  currentStep=n;
+  document.querySelectorAll('.step').forEach(el=>el.classList.remove('visible'));
+  const m={0:'stepWelcome',1:'step1',2:'step2',3:'step3',4:'step4',5:'step5',6:'stepGoodLuck'};
+  if(m[n])document.getElementById(m[n]).classList.add('visible');
+  renderStepDots();
+  if(n===2)requestAnimationFrame(()=>renderRadarChart());
+  if(n===5)document.getElementById('chatTraits').textContent=T().pronoun+'的特質:'+selectedTags.map(id=>TAGS.find(t=>t.id===id).label).join('、');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderStepDots(){
+  const w=document.getElementById('stepDots');
+  // 歡迎頁(0)與祝福頁(6)隱藏進度點 — 進度條只在主流程 1~5 顯示
+  if(currentStep===0||currentStep===6){w.style.display='none';w.innerHTML='';return;}
+  w.style.display='flex';
+  w.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const d=document.createElement('div');
+    d.className='step-dot'+(i===currentStep?' active':'')+(i<currentStep?' done':'');
+    d.style.width=i===currentStep?'32px':'10px';
+    w.appendChild(d);
+  }
+}
+
+// 結束對話 → 跳到祝福頁
+function endChat(){
+  // 若聊天紀錄為空,提醒先聊兩句再結束(避免誤觸)
+  if(chatHistory.length===0){
+    if(!confirm('你還沒和她說上半句話,確定要結束嗎?'))return;
+  }
+  goStep(6);
+}
+
+// 重新開始 — 清空所有狀態回到首頁
+function restartAll(){
+  if(!confirm('確定要重新開始嗎?目前的所有選擇、分析報告與對話紀錄都會清空。'))return;
+  selectedTags=[];
+  sliderValues={};
+  selectedObstacle=null;
+  chatHistory=[];
+  generatedPersona='';
+  lastAnalysis=null;
+  TAGS=TAGS.filter(t=>!t.custom);
+  customTagSeq=0;
+  // 重置 obstacle 與 analyze 按鈕
+  document.querySelectorAll('.obstacle-card').forEach(b=>b.classList.remove('selected'));
+  const ba=document.getElementById('btnAnalyze');if(ba)ba.disabled=true;
+  // 重新渲染標籤(順便清掉 selected 狀態)
+  renderTags();
+  goStep(0);
+}
+
+// ── Step 1 ──
+function renderTags(){
+  const g=document.getElementById('tagsGrid');g.innerHTML='';
+  TAGS.forEach(tag=>{
+    const b=document.createElement('button');
+    b.className='tag-chip'+(tag.custom?' custom':'');
+    b.dataset.id=tag.id;
+    const delBtn=tag.custom?`<span class="del-x" title="刪除自訂標籤">✕</span>`:'';
+    b.innerHTML=`<span class="tag-emoji">${tag.emoji}</span>${tag.label}${delBtn}`;
+    b.onclick=(e)=>{
+      if(e.target.classList.contains('del-x')){e.stopPropagation();deleteCustomTag(tag.id);return;}
+      toggleTag(tag.id);
+    };
+    g.appendChild(b);
+  });
+  updateTagUI();
+}
+function toggleTag(id){const i=selectedTags.indexOf(id);if(i>=0)selectedTags.splice(i,1);else if(selectedTags.length<5)selectedTags.push(id);updateTagUI();}
+function updateTagUI(){
+  document.querySelectorAll('.tag-chip').forEach(b=>{
+    const s=selectedTags.includes(b.dataset.id);
+    b.classList.toggle('selected',s);
+    b.classList.toggle('disabled',!s&&selectedTags.length>=5);
+  });
+  const w=document.getElementById('tagCountWrap'),c=document.getElementById('tagCount');
+  if(selectedTags.length>0){w.style.display='block';c.textContent=`已選擇 ${selectedTags.length} / 5 個特質`;}
+  else w.style.display='none';
+}
+
+// ── 自訂標籤 ──
+function toggleCustomTagForm(){
+  const f=document.getElementById('customTagForm');
+  const open=f.classList.toggle('open');
+  document.getElementById('addTagToggle').textContent=open?'－ 收起表單':'＋ 新增自訂標籤';
+  document.getElementById('customTagErr').textContent='';
+  if(open)setTimeout(()=>document.getElementById('customTagName').focus(),100);
+}
+function addCustomTag(){
+  const name=document.getElementById('customTagName').value.trim();
+  const dim=document.getElementById('customTagDim').value;
+  let emoji=document.getElementById('customTagEmoji').value.trim()||'✨';
+  const err=document.getElementById('customTagErr');
+  if(!name){err.textContent='請輸入標籤名稱';return;}
+  if(name.length>10){err.textContent='名稱最多 10 字';return;}
+  if(TAGS.some(t=>t.label===name)){err.textContent='已經有同名標籤了';return;}
+  if(emoji.length>2)emoji=Array.from(emoji)[0]||'✨';
+  const id='custom_'+(++customTagSeq);
+  TAGS.push({id,label:name,dim,emoji,custom:true});
+  if(selectedTags.length<5)selectedTags.push(id);
+  document.getElementById('customTagName').value='';
+  document.getElementById('customTagEmoji').value='✨';
+  err.textContent='';
+  renderTags();
+  toggleCustomTagForm();
+}
+function deleteCustomTag(id){
+  if(!confirm('確定要刪除這個自訂標籤嗎?'))return;
+  TAGS=TAGS.filter(t=>t.id!==id);
+  const i=selectedTags.indexOf(id);if(i>=0)selectedTags.splice(i,1);
+  delete sliderValues[id];
+  renderTags();
+}
+
+// ── Step 2 ──
+function initSliders(){selectedTags.forEach(id=>{if(!(id in sliderValues))sliderValues[id]=50;});renderSliders();}
+function renderSliders(){
+  const w=document.getElementById('slidersWrap');w.innerHTML='';
+  selectedTags.forEach(id=>{
+    const tag=TAGS.find(t=>t.id===id),meta=DIM_META[tag.dim],v=sliderValues[id];
+    const idx=likertIndex(v);
+    const r=document.createElement('div');
+    r.className='slider-row';
+    const likertHtml=LIKERT.map((l,i)=>`<span class="lk${i===idx?' active':''}" data-lk="${i}" style="${i===idx?'color:'+meta.color:''}">${l.label}</span>`).join('');
+    r.innerHTML=`
+      <div class="slider-header">
+        <span class="slider-label">${tag.emoji} ${tag.label}<span class="slider-dim" style="color:${meta.color}">[${meta.name}]</span></span>
+        <span class="slider-val" id="val_${id}" style="color:${meta.color}">${LIKERT[idx].label} · ${v}%</span>
+      </div>
+      <input type="range" class="slider-input" id="slider_${id}" min="0" max="100" value="${v}" style="background:linear-gradient(90deg,${meta.color} ${v}%,#f2d5dc ${v}%)">
+      <div class="likert-scale" id="lk_${id}">${likertHtml}</div>
+    `;
+    w.appendChild(r);
+    const inp=r.querySelector('input');
+    inp.addEventListener('input',function(){
+      const nv=parseInt(this.value);
+      sliderValues[id]=nv;
+      const ni=likertIndex(nv);
+      document.getElementById(`val_${id}`).textContent=`${LIKERT[ni].label} · ${nv}%`;
+      this.style.background=`linear-gradient(90deg,${meta.color} ${nv}%,#f2d5dc ${nv}%)`;
+      r.querySelectorAll('.lk').forEach((sp,i)=>{
+        sp.classList.toggle('active',i===ni);
+        sp.style.color=i===ni?meta.color:'';
+      });
+      updateRadarChart();
+    });
+    r.querySelectorAll('.lk').forEach(sp=>{
+      sp.style.cursor='pointer';
+      sp.addEventListener('click',function(){
+        const i=parseInt(this.dataset.lk);
+        inp.value=LIKERT[i].v;
+        inp.dispatchEvent(new Event('input'));
+      });
+    });
+  });
+}
+function getScores(){const d={visual:[],connection:[],personality:[],anxiety:[]};selectedTags.forEach(id=>{const t=TAGS.find(x=>x.id===id);if(t)d[t.dim].push(sliderValues[id]??50);});const s={};for(const[k,a]of Object.entries(d))s[k]=a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;return s;}
+function renderRadarChart(){const ctx=document.getElementById('radarChart').getContext('2d');if(radarChartInstance)radarChartInstance.destroy();const s=getScores();radarChartInstance=new Chart(ctx,{type:'radar',data:{labels:['外貌氣質','聊天共鳴','個性價值','暈船焦慮'],datasets:[{data:[s.visual,s.connection,s.personality,s.anxiety],backgroundColor:'rgba(230,59,97,.16)',borderColor:'#e63b61',borderWidth:2,pointBackgroundColor:'#ffffff',pointBorderColor:'#e63b61',pointBorderWidth:3,pointRadius:4}]},options:{responsive:true,scales:{r:{beginAtZero:true,max:100,grid:{color:'rgba(198,40,72,.13)'},angleLines:{color:'rgba(197,154,84,.22)'},pointLabels:{color:'#65404a',font:{size:13,family:"'Noto Sans TC'",weight:'700'}},ticks:{display:false}}},plugins:{legend:{display:false}}}});renderRadarLegend(s);}
+function updateRadarChart(){const s=getScores();if(radarChartInstance){radarChartInstance.data.datasets[0].data=[s.visual,s.connection,s.personality,s.anxiety];radarChartInstance.update();}renderRadarLegend(s);}
+function renderRadarLegend(s){const w=document.getElementById('radarLegend');w.innerHTML='';for(const[k,m]of Object.entries(DIM_META)){const sp=document.createElement('span');sp.style.color=m.color;sp.textContent=`● ${m.name}: ${s[k]}%`;w.appendChild(sp);}}
+
+// ── Step 3 ──
+function renderObstacles(){const l=document.getElementById('obstacleList');OBSTACLES.forEach(ob=>{const b=document.createElement('button');b.className='obstacle-card';b.dataset.id=ob.id;b.innerHTML=`<span class="ob-icon">${ob.emoji}</span>${ob.label}`;b.onclick=()=>selectObstacle(ob.id);l.appendChild(b);});}
+function selectObstacle(id){selectedObstacle=id;document.querySelectorAll('.obstacle-card').forEach(b=>b.classList.toggle('selected',b.dataset.id===id));document.getElementById('btnAnalyze').disabled=false;}
+
+// ══════════════════════════════════════
+// AI-POWERED ANALYSIS
+// ══════════════════════════════════════
+async function runAnalysis(){
+  document.getElementById('analysisError').style.display='none';
+  // 檢查 Proxy URL 是否已被開發者設定
+  if(!isProxyConfigured()){
+    const errEl=document.getElementById('analysisError');
+    errEl.innerHTML='❌ 開發者尚未設定 Proxy URL<br>請在 HTML 原始碼中將 <code style="background:#fff;padding:2px 6px;border-radius:4px">PROXY_URL</code> 改為已部署的 Cloudflare Worker 網址';
+    errEl.style.display='block';
+    return;
+  }
+  document.querySelectorAll('.step').forEach(el=>el.classList.remove('visible'));
+  document.getElementById('stepAnalyzing').classList.add('visible');
+  document.getElementById('analyzingText').textContent=`${getOllamaConfig().model} 分析中...`;
+
+  const scores=getScores();
+  const tagDetails=selectedTags.map(id=>{
+    const t=TAGS.find(x=>x.id===id);
+    const lk=LIKERT[likertIndex(sliderValues[id])].label;
+    const note=t.custom?'(使用者自訂)':'';
+    return `${t.label}${note}(感受強度:${sliderValues[id]}% — 李克特等級:「${lk}」,維度:${DIM_META[t.dim].name})`;
+  }).join('\n');
+  const obLabel=OBSTACLES.find(o=>o.id===selectedObstacle)?.label||'';
+
+  const _t=T();
+  const _opp=_t.oppGender; // 使用者的性別(對象的相對方)
+  const prompt=`你是一位專業的情感分析師兼角色編劇。一位${_opp}性使用者對某位${_t.noun}有好感,以下是輸入的數據,請根據這些數據:(1) 生成一份深度情感診斷報告 (2) 為聊天模擬塑造一個鮮活的${_t.noun}角色。
+
+【⚠️ 角色基礎設定 — 不可變動】
+${getBasePersona()}
+請務必以這層基礎設定作為所有分析與角色塑造的底層,即使其他標籤強烈相反,也要把「${_t.personType} × 剛認識的客套距離感」融進去。
+
+【使用者對這位${_t.noun}的印象標籤與感受強度(以 5 段李克特量表評分)】
+${tagDetails}
+
+【四大維度綜合分數】
+- 外貌氣質:${scores.visual}%
+- 聊天共鳴:${scores.connection}%
+- 個性價值:${scores.personality}%
+- 暈船焦慮:${scores.anxiety}%
+
+【使用者自認最大的阻礙】
+${obLabel}
+
+請特別留意「使用者自訂」的標籤,這些往往是最關鍵的個人化線索。請用繁體中文回覆,嚴格以下列 JSON 格式輸出(不要加任何 markdown 標記或其他文字):
+{"type_emoji":"一個代表類型的emoji","type_name":"4~6字的暈船類型名稱","type_desc":"80~120字的類型描述","psyche":"120~180字的使用者心理狀態分析","perception":"120~180字的對${_t.noun}方認知分析(請結合${_t.pronoun}是${_t.personType} × 剛認識客套感的事實)","obstacle_advice":"120~180字的阻礙突破策略","action":"120~180字的具體行動建議","chat_persona":"請根據上面【⚠️ 角色基礎設定】+ 使用者標籤,用 300~500 字寫出一份超級詳細的角色設定書。必須明確涵蓋:(1)${_t.pronoun}是${_t.personType},系所/年級可以自行設定一個合理的(2)說話風格、慣用語助詞、emoji 使用習慣(必須帶有大學生客套的禮貌感)(3)個性細節與${_t.pronoun}對使用者目前的態度(根據維度分數推測,但底層仍保有客套)(4)回訊息的模式(回覆速度、長度、會不會主動找話題)(5)至少列出 3-5 句${_t.pronoun}會說的典型客套但不冷漠的句子作為範例,例如『不好意思 剛剛在上課』『欸欸真的嗎 哈哈』『好啊~ 那再約』之類的"}`;
+
+  try{
+    const reply=await callOllama([{role:'user',content:prompt}]);
+    let jsonStr=reply.trim();
+    const jsonMatch=jsonStr.match(/\{[\s\S]*\}/);
+    if(jsonMatch) jsonStr=jsonMatch[0];
+    const report=JSON.parse(jsonStr);
+    generatedPersona=report.chat_persona||'';
+    lastAnalysis={
+      report,scores,
+      tags:selectedTags.map(id=>{
+        const t=TAGS.find(x=>x.id===id);
+        return {label:t.label,emoji:t.emoji,dim:t.dim,value:sliderValues[id],likert:LIKERT[likertIndex(sliderValues[id])].label,custom:!!t.custom};
+      }),
+      obstacle:obLabel,
+      model:getOllamaConfig().model,
+      generatedAt:new Date().toLocaleString('zh-TW',{hour12:false}),
+    };
+    buildReport(report,scores);
+    document.getElementById('stepAnalyzing').classList.remove('visible');
+    goStep(4);
+  }catch(err){
+    document.getElementById('stepAnalyzing').classList.remove('visible');
+    document.getElementById('step3').classList.add('visible');
+    currentStep=3; renderStepDots();
+    const errEl=document.getElementById('analysisError');
+    errEl.textContent=`❌ AI 分析失敗:${err.message}`;
+    errEl.style.display='block';
+  }
+}
+
+function buildReport(report,scores){
+  document.getElementById('reportModelName').textContent=getOllamaConfig().model;
+  const badge=document.getElementById('typeBadge');
+  badge.innerHTML=`<div class="type-badge" id="typeBadgeInner"><div class="type-emoji">${report.type_emoji||'💘'}</div><div class="type-label">你的暈船類型</div><div class="type-name">${report.type_name||'分析完成'}</div><div class="type-desc">${report.type_desc||''}</div></div>`;
+  setTimeout(()=>document.getElementById('typeBadgeInner')?.classList.add('show'),200);
+
+  const dimWrap=document.getElementById('dimSummary');dimWrap.innerHTML='';
+  for(const[k,m]of Object.entries(DIM_META)){
+    const c=document.createElement('div');
+    c.className='dim-card';
+    c.innerHTML=`<div class="dim-name" style="color:${m.color}">${m.name}</div><div class="dim-val" style="color:${m.color}">${scores[k]}%</div>`;
+    dimWrap.appendChild(c);
+  }
+
+  const obLabel=OBSTACLES.find(o=>o.id===selectedObstacle)?.label||'';
+  const cards=[
+    {icon:"🧑‍💻",title:"你的心理狀態解析",content:report.psyche||'',color:"#e63b61",delay:500},
+    {icon:"👧",title:"在你眼中的她",content:report.perception||'',color:"#ff5c9a",delay:900},
+    {icon:"🚧",title:`阻礙突破指南 — ${obLabel}`,content:report.obstacle_advice||'',color:"#c59a54",delay:1300},
+    {icon:"💡",title:"下一步行動戰略",content:report.action||'',color:"#c82848",delay:1700},
+  ];
+  const w=document.getElementById('reportCards');w.innerHTML='';
+  cards.forEach(c=>{const d=document.createElement('div');d.className='report-card';d.style.borderLeft=`4px solid ${c.color}`;d.innerHTML=`<div class="report-card-title" style="color:${c.color}"><span class="rc-icon">${c.icon}</span>${c.title}</div><p>${c.content}</p>`;w.appendChild(d);setTimeout(()=>d.classList.add('show'),c.delay);});
+}
+
+// ══════════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════════
+function escapeHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+function buildPdfHtml(a){
+  const dimRows=Object.entries(DIM_META).map(([k,m])=>
+    `<div class="pdf-dim-cell"><span class="n">${m.name}</span><span class="v" style="color:${m.color}">${a.scores[k]}%</span></div>`
+  ).join('');
+  const tagChips=a.tags.map(t=>
+    `<span class="tg">${t.emoji} ${escapeHtml(t.label)} · ${t.likert}(${t.value}%)${t.custom?' ★':''}</span>`
+  ).join('');
+  const r=a.report;
+  return `<div class="pdf-page">
+    <div class="pdf-h1">💘 戀愛情感診斷報告</div>
+    <div class="pdf-sub">LOVE EMOTION NAVIGATOR</div>
+    <div class="pdf-meta">分析模型:${escapeHtml(a.model)}　|　生成時間:${escapeHtml(a.generatedAt)}</div>
+
+    <div class="pdf-type">
+      <div class="pdf-type-emoji">${escapeHtml(r.type_emoji||'💘')}</div>
+      <div class="pdf-type-lbl">你的暈船類型</div>
+      <div class="pdf-type-name">${escapeHtml(r.type_name||'')}</div>
+      <div class="pdf-type-desc">${escapeHtml(r.type_desc||'')}</div>
+    </div>
+
+    <div class="pdf-section-title">四大維度綜合分數</div>
+    <div class="pdf-dim-grid">${dimRows}</div>
+
+    <div class="pdf-section-title">她給你的印象標籤</div>
+    <div class="pdf-tag-list">${tagChips}<div style="font-size:10px;color:#999;margin-top:6px">★ = 使用者自訂標籤</div></div>
+
+    <div class="pdf-section-title">你自認最大的阻礙</div>
+    <div class="pdf-obstacle">🚧 ${escapeHtml(a.obstacle)}</div>
+
+    <div class="pdf-section-title">深度分析</div>
+    <div class="pdf-card c1"><div class="pc-title">🧑‍💻 你的心理狀態解析</div><div class="pc-body">${escapeHtml(r.psyche||'')}</div></div>
+    <div class="pdf-card c2"><div class="pc-title">👧 在你眼中的她</div><div class="pc-body">${escapeHtml(r.perception||'')}</div></div>
+    <div class="pdf-card c3"><div class="pc-title">🚧 阻礙突破指南 — ${escapeHtml(a.obstacle)}</div><div class="pc-body">${escapeHtml(r.obstacle_advice||'')}</div></div>
+    <div class="pdf-card c4"><div class="pc-title">💡 下一步行動戰略</div><div class="pc-body">${escapeHtml(r.action||'')}</div></div>
+
+    <div class="pdf-footer">本報告由 AI 模型基於使用者主觀輸入生成,僅供自我反思與情境練習參考,並非客觀預測。</div>
+  </div>`;
+}
+
+async function downloadPdf(){
+  if(!lastAnalysis){alert('還沒有分析資料,請先完成 AI 分析');return;}
+  if(typeof html2pdf==='undefined'){alert('PDF 函式庫尚未載入,請確認網路連線後重新整理頁面');return;}
+  const btn=document.getElementById('btnPdf');
+  btn.disabled=true;
+  const origText=btn.textContent;
+  btn.textContent='⏳ 產生 PDF 中...';
+
+  // 暫存並覆寫 body/html 的 overflow,避免響應式 overflow-x:hidden 把 html2canvas 的渲染區裁掉
+  const _bo=document.body.style.overflow,_box=document.body.style.overflowX;
+  const _ho=document.documentElement.style.overflow,_hox=document.documentElement.style.overflowX;
+  document.body.style.overflow='visible';
+  document.body.style.overflowX='visible';
+  document.documentElement.style.overflow='visible';
+  document.documentElement.style.overflowX='visible';
+  // 記住滾動位置(html2canvas 會受滾動影響)
+  const _sx=window.scrollX,_sy=window.scrollY;
+
+  // 將容器放在「固定的左上角座標」(left:0 top:0)而非負偏移 — 響應式裁切下,負偏移會被 clip
+  // 用 z-index 極小值藏在背景之下,加 pointer-events:none 避免擋住 UI
+  const container=document.createElement('div');
+  container.style.cssText=`
+    position:fixed;left:0;top:0;width:794px;background:#ffffff;
+    z-index:-2147483648;pointer-events:none;opacity:1;
+    transform:translateZ(0);
+  `;
+  container.innerHTML=buildPdfHtml(lastAnalysis);
+  document.body.appendChild(container);
+  const target=container.querySelector('.pdf-page');
+
+  // 等待字型 + emoji 載入
+  try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
+  await new Promise(r=>setTimeout(r,500));
+
+  const filename=`戀愛情感診斷報告_${(new Date()).toISOString().slice(0,10)}.pdf`;
+  try{
+    // 量測實際高度後,把完整尺寸明確告訴 html2canvas
+    const rect=target.getBoundingClientRect();
+    const h=Math.ceil(rect.height);
+    await html2pdf().set({
+      margin:[8,0,8,0],
+      filename,
+      image:{type:'jpeg',quality:0.96},
+      html2canvas:{
+        scale:2,
+        useCORS:true,
+        allowTaint:true,
+        backgroundColor:'#ffffff',
+        width:794,
+        height:h,
+        windowWidth:794,
+        windowHeight:Math.max(h,window.innerHeight),
+        x:0,y:0,
+        scrollX:0,scrollY:0,
+      },
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true},
+      pagebreak:{mode:['css','legacy']},
+    }).from(target).save();
+  }catch(err){
+    console.error(err);
+    alert('PDF 產生失敗:'+(err&&err.message?err.message:err));
+  }finally{
+    document.body.removeChild(container);
+    // 還原 overflow 與滾動
+    document.body.style.overflow=_bo;
+    document.body.style.overflowX=_box;
+    document.documentElement.style.overflow=_ho;
+    document.documentElement.style.overflowX=_hox;
+    window.scrollTo(_sx,_sy);
+    btn.disabled=false;
+    btn.textContent=origText;
+  }
+}
+
+// ══════════════════════════════════════
+// STEP 5 — CHAT
+// ══════════════════════════════════════
+function enterChat(){chatHistory=[];document.getElementById('chatArea').innerHTML='<div class="chat-empty" id="chatEmpty">試著打個招呼吧 👋<br>像是「嗨」「最近好嗎」</div>';goStep(5);}
+function appendBubble(role,text){const e=document.getElementById('chatEmpty');if(e)e.remove();const a=document.getElementById('chatArea'),w=document.createElement('div');w.className='chat-bubble-wrap '+role;w.innerHTML=`<div class="chat-bubble">${text.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;a.appendChild(w);a.scrollTop=a.scrollHeight;}
+function setTyping(show){let el=document.getElementById('typingIndicator');if(show&&!el){el=document.createElement('div');el.id='typingIndicator';el.className='chat-typing';el.textContent='對方正在輸入中...';const a=document.getElementById('chatArea');a.appendChild(el);a.scrollTop=a.scrollHeight;}else if(!show&&el)el.remove();}
+
+async function sendChat(){
+  const input=document.getElementById('chatInput');
+  const msg=input.value.trim();
+  if(!msg||chatLoading)return;
+  input.value='';
+  chatHistory.push({role:'user',content:msg});
+  appendBubble('user',msg);
+  chatLoading=true;
+  document.getElementById('btnSend').disabled=true;
+  setTyping(true);
+
+  const tagLabels=selectedTags.map(id=>TAGS.find(t=>t.id===id).label).join('、');
+
+  const _t=T();
+  const _opp=_t.oppGender;
+  let systemPrompt;
+  if(generatedPersona){
+    systemPrompt=`你正在扮演一位${_t.noun==='女生'?'女性':'男性'},在社群軟體上和一個${_opp}生聊天。
+
+【⚠️ 不可變動的底層人設】
+${getBasePersona()}
+
+【完整角色設定書】
+${generatedPersona}
+
+【絕對規則】
+1. 你必須完全沉浸在角色中,用角色的口吻、語氣、習慣來回覆
+2. 使用繁體中文(台灣用語,不要用「視頻」「微信」這類中國用法)
+3. 回覆要像真人在傳訊息(口語化、用語助詞)
+4. 單次回覆控制在 10-60 字之間,像真的在用手機打字
+5. 嚴格遵守角色設定中描述的回訊模式
+6. 絕對不要暴露你是 AI
+7. 不要每句都很熱情。底層必須保持「${_t.personType} × 剛認識的客套距離感」——
+   就算個性是熱情的,也是「禮貌的熱情」;就算個性是冷淡的,也是「禮貌的冷淡」
+8. 常用客套但不冷漠的台灣大學生用語(請依${_t.noun}的性別自然調整,${_t.noun==='男生'?'男生會更常用「謝啦」「OK」「真假」「好喔」「哈」「嗯嗯」':'女生會用「不好意思」「謝謝」「哈哈」「真的假的」「好啊~」「欸欸」「OK OK」'})等
+9. 不會太快透露太多私事(科系、住哪、家庭等),被問到會委婉帶過或反問
+10. 如果角色設定中有提供典型句子範例,請自然地融入你的回覆風格中
+
+【⚠️ 反應符號的使用規則(非常重要,真實感的關鍵)】
+- 絕對不要每一句都加 emoji。emoji 過多會非常假
+- 大概每 3~5 句訊息才出現一次 emoji,而且通常只用 1 個,最多 2 個
+- 反應方式請「輪流穿插」以下四種,不要固定用同一種:
+  (a) 純文字反應:「哈哈」「哈哈哈」「欸真假」「嗚嗚」「噢噢」「ㄜ...」「天啊」
+  (b) 顏文字 / 表情符號:「:)」「:(」「>///<」「(´∀\`)」「(ノД\`)」「Q____Q」「OAO」「:D」
+  (c) Emoji(節制使用):😂 🥺 🤔 😅 🙏 👍 ✨(這類常見的,別用太多)
+  (d) 完全不用任何符號,純文字回覆 ← 至少一半的訊息應該是這種
+- 句尾語助詞反而要多用:「啦」「欸」「耶」「吧」「捏」「呢」「哦」「喔」「~」
+- 不要一個訊息同時用顏文字 + emoji + 哈哈,選一種就好,看哪個最自然
+- 反例(很假):「真的嗎😂😂哈哈哈太好笑了吧🤣🤣✨」
+- 正例 1:「真的假的啦」
+- 正例 2:「哈哈 對啊」
+- 正例 3:「我也覺得耶 :)」
+- 正例 4:「好喔 那再說」`;
+  }else{
+    systemPrompt=`你是一位${_t.personType}(約 19~22 歲),正在社群軟體上和一個${_opp}生聊天。
+你和對方剛認識不久,還沒有很熟,所以語氣會比較客套有禮——
+${_t.noun==='男生'?'常用「不好意思」「謝啦」「OK」「真假」「好喔」「哈」「嗯嗯」等大學男生客套用語':'常用「不好意思」「謝謝」「哈哈」「真的假的」「好啊~」「欸欸」等大學女生客套用語'},
+不會太快透露太多私事。
+你的特質:${tagLabels}。
+規則:繁體中文(台灣用語)、自然口語、單次回覆 10-60 字、保持禮貌距離、不要暴露你是 AI。
+
+【反應符號的使用規則 — 真實感很重要】
+- 絕對不要每一句都加 emoji
+- 大概 3~5 句才出現一次 emoji,且通常只用 1 個
+- 反應方式請輪流穿插:純文字「哈哈/欸真假/嗚嗚/噢噢」、顏文字「:) :( >///< (´∀\`) Q____Q OAO」、節制的 emoji(😂🥺🤔😅🙏)、以及完全不用符號的純文字訊息(至少一半訊息應該是這種)
+- 多用句尾語助詞:啦、欸、耶、吧、捏、呢、哦、喔、~
+- 不要一個訊息同時用顏文字 + emoji + 哈哈
+- 反例:「真的嗎😂😂哈哈🤣✨」  正例:「真的假的啦」「哈哈 對啊」「我也覺得耶 :)」「好喔 那再說」`;
+  }
+
+  const messages=[{role:'system',content:systemPrompt},...chatHistory.map(m=>({role:m.role==='user'?'user':'assistant',content:m.content}))];
+
+  try{
+    const reply=await callOllama(messages);
+    chatHistory.push({role:'assistant',content:reply});
+    setTyping(false);
+    appendBubble('assistant',reply);
+  }catch(err){
+    setTyping(false);
+    appendBubble('assistant',`(連線失敗:${err.message})`);
+  }
+  chatLoading=false;
+  document.getElementById('btnSend').disabled=false;
+  input.focus();
+}
+
+init();
+</script>
+</body>
+</html>
