@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>戀愛情感導航系統</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -276,7 +277,7 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
       <div class="welcome-cta">
         <button class="btn-primary" onclick="goStep(1)">開始分析 ✨</button>
       </div>
-      <p class="welcome-note">⚠️ 這是基於你主觀認知的自我反思工具,不是預測她心意的占卜,請以此作為破冰勇氣的練習,而非決定關係的依據。</p>
+      <p class="welcome-note" id="welcomeNote">⚠️ 這是基於你主觀認知的自我反思工具,不是預測她心意的占卜,請以此作為破冰勇氣的練習,而非決定關係的依據。</p>
     </div>
   </div>
 
@@ -395,10 +396,10 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
       <div class="gl-tips">
         <div class="gl-tips-title">— 給自己的小提醒 —</div>
         <ul class="gl-tips-list">
-          <li><span class="gl-li-icon">✦</span><span>真實的她,不會完全等同於 AI 模擬中的她</span></li>
+          <li><span class="gl-li-icon">✦</span><span id="glTipReal">真實的她,不會完全等同於 AI 模擬中的她</span></li>
           <li><span class="gl-li-icon">✦</span><span>練習過 ≠ 一定要告白,有勇氣選擇繼續觀察也很好</span></li>
           <li><span class="gl-li-icon">✦</span><span>不論結果如何,你都更認識「會喜歡這種人的自己」</span></li>
-          <li><span class="gl-li-icon">✦</span><span>她現在也只是個普通的大學女生,你不用緊張到忘記呼吸</span></li>
+          <li><span class="gl-li-icon">✦</span><span id="glTipHuman">她現在也只是個普通的大學女生,你不用緊張到忘記呼吸</span></li>
         </ul>
       </div>
 
@@ -498,6 +499,8 @@ function setGender(g){
   // 歡迎頁標語
   const wt=document.getElementById('welcomeTagline');
   if(wt)wt.innerHTML=`把你對${p}的感覺,化為一份<strong>專屬的情感地圖</strong><br>透過 5 個步驟的引導,看清自己、突破阻礙`;
+  const wn=document.getElementById('welcomeNote');
+  if(wn)wn.textContent=`⚠️ 這是基於你主觀認知的自我反思工具,不是預測${p}心意的占卜,請以此作為破冰勇氣的練習,而非決定關係的依據。`;
   // Step 1
   const h2=document.getElementById('step1H2');if(h2)h2.textContent=`Step 1 — ${p}給你的印象是?`;
   const d1=document.getElementById('step1Desc');if(d1)d1.textContent=`選擇最符合${p}的特質標籤(1 ~ 5 個),也可以自訂新標籤`;
@@ -505,7 +508,10 @@ function setGender(g){
   const d3=document.getElementById('step3Desc');if(d3)d3.textContent=`選出你和${p}之間,目前最讓你卡住的那道牆`;
   // Step 6
   const gl=document.getElementById('glMsgP2');if(gl)gl.innerHTML=`無論${p}最後的回應是什麼,<br>你都比進入這個網站之前的自己,<br>更清楚自己想要什麼了。`;
+  const glReal=document.getElementById('glTipReal');if(glReal)glReal.textContent=`真實的${p},不會完全等同於 AI 模擬中的${p}`;
+  const glHuman=document.getElementById('glTipHuman');if(glHuman)glHuman.textContent=`${p}現在也只是個普通的大學${T().noun},你不用緊張到忘記呼吸`;
   // 更新標籤與阻礙中含「她/他」的字
+  const comfort=TAGS.find(t=>t.id==='comfort');if(comfort)comfort.label=`和${p}在一起很自在`;
   const toonice=TAGS.find(t=>t.id==='toonice');if(toonice)toonice.label=`感覺${p}對很多人都很好`;
   const unsure=OBSTACLES.find(o=>o.id==='unsure');if(unsure)unsure.label=`不確定${p}對我有沒有好感`;
   const taken=OBSTACLES.find(o=>o.id==='taken');if(taken)taken.label=`${p}好像有喜歡的人了`;
@@ -615,7 +621,7 @@ function renderStepDots(){
 function endChat(){
   // 若聊天紀錄為空,提醒先聊兩句再結束(避免誤觸)
   if(chatHistory.length===0){
-    if(!confirm('你還沒和她說上半句話,確定要結束嗎?'))return;
+    if(!confirm(`你還沒和${T().pronoun}說上半句話,確定要結束嗎?`))return;
   }
   goStep(6);
 }
@@ -865,6 +871,7 @@ function buildJpgHtml(a){
     `<span class="tg">${t.emoji} ${escapeHtml(t.label)} · ${t.likert}(${t.value}%)${t.custom?' ★':''}</span>`
   ).join('');
   const r=a.report;
+  const p=T().pronoun;
   return `<div class="pdf-page">
     <div class="pdf-h1">💘 戀愛情感診斷報告</div>
     <div class="pdf-sub">LOVE EMOTION NAVIGATOR</div>
@@ -880,7 +887,7 @@ function buildJpgHtml(a){
     <div class="pdf-section-title">四大維度綜合分數</div>
     <div class="pdf-dim-grid">${dimRows}</div>
 
-    <div class="pdf-section-title">她給你的印象標籤</div>
+    <div class="pdf-section-title">${p}給你的印象標籤</div>
     <div class="pdf-tag-list">${tagChips}<div style="font-size:10px;color:#999;margin-top:6px">★ = 使用者自訂標籤</div></div>
 
     <div class="pdf-section-title">你自認最大的阻礙</div>
@@ -888,7 +895,7 @@ function buildJpgHtml(a){
 
     <div class="pdf-section-title">深度分析</div>
     <div class="pdf-card c1"><div class="pc-title">🧑‍💻 你的心理狀態解析</div><div class="pc-body">${escapeHtml(r.psyche||'')}</div></div>
-    <div class="pdf-card c2"><div class="pc-title">👧 在你眼中的她</div><div class="pc-body">${escapeHtml(r.perception||'')}</div></div>
+    <div class="pdf-card c2"><div class="pc-title">👧 在你眼中的${p}</div><div class="pc-body">${escapeHtml(r.perception||'')}</div></div>
     <div class="pdf-card c3"><div class="pc-title">🚧 阻礙突破指南 — ${escapeHtml(a.obstacle)}</div><div class="pc-body">${escapeHtml(r.obstacle_advice||'')}</div></div>
     <div class="pdf-card c4"><div class="pc-title">💡 下一步行動戰略</div><div class="pc-body">${escapeHtml(r.action||'')}</div></div>
 
