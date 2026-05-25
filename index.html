@@ -5,16 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>戀愛情感導航系統</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.7/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-:root{--pink:#ff5c9a;--rose:#e63b61;--red:#c82848;--blush:#fff0f5;--cream:#fffaf7;--paper:#ffffff;--ink:#38212a;--muted:#8f6671;--gold:#c59a54;--sage:#738f78;--shadow:0 18px 42px rgba(198,55,91,.16);--line:rgba(198,40,72,.16);--bg-start:#fff8f9;--bg-mid:#ffe7ef;--bg-end:#fffdfb}
+:root{--pink:#ff5c9a;--rose:#e63b61;--red:#c82848;--blush:#fff0f5;--cream:#fffaf7;--paper:#ffffff;--ink:#38212a;--muted:#8f6671;--gold:#c59a54;--sage:#738f78;--shadow:0 18px 42px rgba(198,55,91,.16);--line:rgba(198,40,72,.16);--bg-start:#fff8f9;--bg-mid:#ffe7ef;--bg-end:#fffdfb;--halo-a:rgba(255,182,198,.52);--halo-b:rgba(255,120,149,.26);--mesh-a:rgba(197,154,84,.07);--mesh-b:rgba(255,92,154,.035);--ring-a:rgba(197,154,84,.22);--ring-b:rgba(198,40,72,.08);--wash:rgba(255,92,154,.28);--track:#f2d5dc}
+body[data-theme="male"]{--pink:#5b9bd5;--rose:#3a6ea8;--red:#1f5f99;--blush:#edf7ff;--cream:#f7fbff;--ink:#1e2d3c;--muted:#637b91;--gold:#b89454;--sage:#5f8b8a;--shadow:0 18px 42px rgba(31,95,153,.17);--line:rgba(31,95,153,.16);--bg-start:#f7fbff;--bg-mid:#dfefff;--bg-end:#fffdf8;--halo-a:rgba(130,185,232,.5);--halo-b:rgba(68,132,191,.26);--mesh-a:rgba(184,148,84,.08);--mesh-b:rgba(31,95,153,.045);--ring-a:rgba(184,148,84,.25);--ring-b:rgba(31,95,153,.1);--wash:rgba(91,155,213,.32);--track:#d5e5f4}
 *{box-sizing:border-box;margin:0;padding:0}::selection{background:rgba(255,92,154,.22)}
 html{background:var(--bg-start)}
-body{min-height:100vh;background:radial-gradient(circle at 12% 0%,rgba(255,182,198,.52) 0 18%,transparent 36%),radial-gradient(circle at 88% 10%,rgba(255,120,149,.26) 0 14%,transparent 34%),linear-gradient(155deg,var(--bg-start) 0%,var(--bg-mid) 44%,var(--bg-end) 100%);color:var(--ink);font-family:'Noto Sans TC',sans-serif;overflow-x:hidden}
+body{min-height:100vh;background:radial-gradient(circle at 12% 0%,var(--halo-a) 0 18%,transparent 36%),radial-gradient(circle at 88% 10%,var(--halo-b) 0 14%,transparent 34%),linear-gradient(155deg,var(--bg-start) 0%,var(--bg-mid) 44%,var(--bg-end) 100%);color:var(--ink);font-family:'Noto Sans TC',sans-serif;overflow-x:hidden;transition:background-color .65s ease,color .45s ease}
 body::before,body::after{content:'';position:fixed;z-index:-1;pointer-events:none}
-body::before{inset:0;background:repeating-linear-gradient(90deg,rgba(197,154,84,.07) 0 1px,transparent 1px 34px),repeating-linear-gradient(0deg,rgba(255,92,154,.035) 0 1px,transparent 1px 34px);mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 72%)}
-body::after{width:360px;height:360px;right:-150px;top:72px;border:1px solid rgba(197,154,84,.22);border-radius:50%;box-shadow:inset 0 0 0 18px rgba(255,255,255,.28),inset 0 0 0 20px rgba(198,40,72,.08)}
+body::before{inset:0;background:radial-gradient(circle at 50% 14%,var(--wash) 0 0,transparent 56%),repeating-linear-gradient(90deg,var(--mesh-a) 0 1px,transparent 1px 34px),repeating-linear-gradient(0deg,var(--mesh-b) 0 1px,transparent 1px 34px);mask-image:linear-gradient(to bottom,rgba(0,0,0,.8),transparent 72%);opacity:.95}
+body::after{width:360px;height:360px;right:-150px;top:72px;border:1px solid var(--ring-a);border-radius:50%;box-shadow:inset 0 0 0 18px rgba(255,255,255,.28),inset 0 0 0 20px var(--ring-b);transition:border-color .55s ease,box-shadow .55s ease}
+body.theme-changing::before{animation:themeWash .78s ease both}
+body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changing .step.visible{animation:themeLift .62s ease both}
 .container{width:min(100%,640px);margin:0 auto;padding:24px 16px calc(80px + env(safe-area-inset-bottom));position:relative}
 .header{text-align:center;margin-bottom:28px;animation:fadeUp .8s ease;position:relative;padding:28px 18px 24px;border-radius:160px 160px 24px 24px;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,246,249,.8));border:1px solid rgba(197,154,84,.28);box-shadow:var(--shadow)}
 .header::before{content:'';position:absolute;inset:8px;border:1px solid rgba(198,40,72,.16);border-radius:150px 150px 18px 18px;pointer-events:none}
@@ -162,6 +164,9 @@ body::after{width:360px;height:360px;right:-150px;top:72px;border:1px solid rgba
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes themeWash{0%{opacity:.18;transform:scale(.9)}45%{opacity:1;transform:scale(1.06)}100%{opacity:.95;transform:scale(1)}}
+@keyframes themeLift{0%{filter:saturate(.7);transform:translateY(8px)}100%{filter:saturate(1);transform:translateY(0)}}
+@keyframes symbolPop{0%{transform:scale(.72) rotate(-8deg)}70%{transform:scale(1.18) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
 
 /* ── PDF 印刷版樣式(由 JS 將容器放到 off-screen 處渲染) ── */
 .pdf-page{width:794px;padding:40px 48px;background:#ffffff;color:#222;font-family:'Noto Sans TC','Microsoft JhengHei',sans-serif;line-height:1.7}
@@ -226,13 +231,13 @@ body::after{width:360px;height:360px;right:-150px;top:72px;border:1px solid rgba
 .btn-end:hover{background:#fff;border-style:solid}
 
 /* ── 性別切換(對象的性別)── */
-.gender-toggle{display:flex;flex-direction:column;align-items:center;gap:10px;margin:0 auto 24px;padding:14px 18px;background:rgba(255,255,255,.75);border:1px solid rgba(197,154,84,.28);border-radius:18px;max-width:380px;box-shadow:0 8px 18px rgba(198,40,72,.06)}
+.gender-toggle{display:flex;flex-direction:column;align-items:center;gap:10px;margin:0 auto 24px;padding:14px 18px;background:rgba(255,255,255,.75);border:1px solid var(--ring-a);border-radius:18px;max-width:380px;box-shadow:0 8px 18px var(--line);transition:border-color .45s ease,box-shadow .45s ease}
 .gender-toggle-lbl{font-size:12px;color:var(--muted);letter-spacing:2px;font-weight:800}
-.gender-options{display:flex;gap:8px;width:100%;background:#fff1f5;padding:5px;border-radius:999px;border:1px solid rgba(198,40,72,.12)}
+.gender-options{display:flex;gap:8px;width:100%;background:var(--blush);padding:5px;border-radius:999px;border:1px solid var(--line);transition:background .45s ease,border-color .45s ease}
 .gender-opt{flex:1;padding:11px 14px;border:none;border-radius:999px;background:transparent;color:var(--muted);font-size:14px;font-weight:800;cursor:pointer;font-family:'Noto Sans TC',sans-serif;letter-spacing:1px;transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:6px}
 .gender-opt:hover:not(.active){color:var(--ink)}
-.gender-opt.active[data-gender="female"]{background:linear-gradient(135deg,var(--red),var(--pink));color:#fff;box-shadow:0 6px 14px rgba(198,40,72,.28)}
-.gender-opt.active[data-gender="male"]{background:linear-gradient(135deg,#3a6ea8,#5b9bd5);color:#fff;box-shadow:0 6px 14px rgba(58,110,168,.28)}
+.gender-opt.active{background:linear-gradient(135deg,var(--red),var(--pink));color:#fff;box-shadow:0 6px 14px var(--line)}
+.gender-opt.active .gender-symbol{animation:symbolPop .42s ease}
 </style>
 </head>
 <body>
@@ -251,8 +256,8 @@ body::after{width:360px;height:360px;right:-150px;top:72px;border:1px solid rgba
       <div class="gender-toggle">
         <span class="gender-toggle-lbl">— 對象的性別 —</span>
         <div class="gender-options">
-          <button class="gender-opt active" data-gender="female" onclick="setGender('female')">👩 女生</button>
-          <button class="gender-opt" data-gender="male" onclick="setGender('male')">👨 男生</button>
+          <button class="gender-opt active" data-gender="female" onclick="setGender('female')"><span class="gender-symbol">👩</span> 女生</button>
+          <button class="gender-opt" data-gender="male" onclick="setGender('male')"><span class="gender-symbol">👨</span> 男生</button>
         </div>
       </div>
 
@@ -307,7 +312,6 @@ body::after{width:360px;height:360px;right:-150px;top:72px;border:1px solid rgba
   <div class="step" id="step2">
     <h2>Step 2 — 調整你的感受強度</h2>
     <p class="desc">拖動滑桿,將你的感覺量化(下方為李克特量表參考)</p>
-    <div class="radar-wrap"><canvas id="radarChart"></canvas><div class="radar-legend" id="radarLegend"></div></div>
     <div id="slidersWrap"></div>
     <div class="btn-row">
       <button class="btn-ghost" onclick="goStep(1)">← 返回</button>
@@ -420,6 +424,17 @@ let TAGS=[
   {id:"seenzone",label:"已讀不回",dim:"anxiety",emoji:"👻"},{id:"toonice",label:"感覺她對很多人都很好",dim:"anxiety",emoji:"🤔"},
 ];
 const DIM_META={visual:{name:"外貌氣質",color:"#e63b61"},connection:{name:"聊天共鳴",color:"#ff5c9a"},personality:{name:"個性價值",color:"#c59a54"},anxiety:{name:"暈船焦慮",color:"#c82848"}};
+const THEME_DIM_COLORS={
+  female:{visual:"#e63b61",connection:"#ff5c9a",personality:"#c59a54",anxiety:"#c82848"},
+  male:{visual:"#1f5f99",connection:"#5b9bd5",personality:"#b89454",anxiety:"#3a6ea8"}
+};
+function applyThemeColors(g){
+  const colors=THEME_DIM_COLORS[g]||THEME_DIM_COLORS.female;
+  Object.entries(colors).forEach(([k,v])=>{if(DIM_META[k])DIM_META[k].color=v;});
+}
+function sliderTrackColor(){
+  return getComputedStyle(document.body).getPropertyValue('--track').trim()||'#f2d5dc';
+}
 const OBSTACLES=[
   {id:"unsure",label:"不確定她對我有沒有好感",emoji:"❓"},{id:"competitor",label:"身邊好像有競爭對手",emoji:"⚔️"},
   {id:"nocircle",label:"生活圈沒什麼交集",emoji:"🌍"},{id:"friendzone",label:"怕告白會毀掉朋友關係",emoji:"🤝"},
@@ -461,7 +476,17 @@ function getBasePersona(){
 // 切換對象性別 — 同步更新所有靜態文字與依賴的標籤
 function setGender(g){
   if(g!=='male'&&g!=='female')return;
+  const changed=targetGender!==g;
   targetGender=g;
+  applyThemeColors(g);
+  document.body.dataset.theme=g;
+  if(changed){
+    document.body.classList.remove('theme-changing');
+    void document.body.offsetWidth;
+    document.body.classList.add('theme-changing');
+    clearTimeout(setGender.themeTimer);
+    setGender.themeTimer=setTimeout(()=>document.body.classList.remove('theme-changing'),820);
+  }
   const p=T().pronoun;
   // toggle UI
   document.querySelectorAll('.gender-opt').forEach(b=>b.classList.toggle('active',b.dataset.gender===g));
@@ -491,6 +516,8 @@ function setGender(g){
     const ct=document.getElementById('chatTraits');
     if(ct)ct.textContent=`${p}的特質:`+selectedTags.map(id=>TAGS.find(t=>t.id===id).label).join('、');
   }
+  if(currentStep===2)renderSliders();
+  if(currentStep===4&&lastAnalysis)buildReport(lastAnalysis.report,lastAnalysis.scores);
 }
 
 // ── 李克特 5 段量表(0~100 對應) ──
@@ -504,7 +531,7 @@ const LIKERT=[
 function likertIndex(v){let best=0,minD=Infinity;LIKERT.forEach((l,i)=>{const d=Math.abs(l.v-v);if(d<minD){minD=d;best=i;}});return best;}
 
 let currentStep=1,selectedTags=[],sliderValues={},selectedObstacle=null;
-let chatHistory=[],chatLoading=false,radarChartInstance=null;
+let chatHistory=[],chatLoading=false;
 let generatedPersona='';
 let customTagSeq=0;
 let lastAnalysis=null;
@@ -536,7 +563,7 @@ async function callOllama(messages){
 }
 
 // ── Init ──
-function init(){renderStepDots();renderTags();renderObstacles();goStep(0);}
+function init(){applyThemeColors(targetGender);document.body.dataset.theme=targetGender;renderStepDots();renderTags();renderObstacles();goStep(0);}
 
 function goStep(n){
   if(n===2)initSliders();
@@ -545,7 +572,6 @@ function goStep(n){
   const m={0:'stepWelcome',1:'step1',2:'step2',3:'step3',4:'step4',5:'step5',6:'stepGoodLuck'};
   if(m[n])document.getElementById(m[n]).classList.add('visible');
   renderStepDots();
-  if(n===2)requestAnimationFrame(()=>renderRadarChart());
   if(n===5)document.getElementById('chatTraits').textContent=T().pronoun+'的特質:'+selectedTags.map(id=>TAGS.find(t=>t.id===id).label).join('、');
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -669,7 +695,7 @@ function renderSliders(){
         <span class="slider-label">${tag.emoji} ${tag.label}<span class="slider-dim" style="color:${meta.color}">[${meta.name}]</span></span>
         <span class="slider-val" id="val_${id}" style="color:${meta.color}">${LIKERT[idx].label} · ${v}%</span>
       </div>
-      <input type="range" class="slider-input" id="slider_${id}" min="0" max="100" value="${v}" style="background:linear-gradient(90deg,${meta.color} ${v}%,#f2d5dc ${v}%)">
+      <input type="range" class="slider-input" id="slider_${id}" min="0" max="100" value="${v}" style="background:linear-gradient(90deg,${meta.color} ${v}%,${sliderTrackColor()} ${v}%)">
       <div class="likert-scale" id="lk_${id}">${likertHtml}</div>
     `;
     w.appendChild(r);
@@ -679,12 +705,11 @@ function renderSliders(){
       sliderValues[id]=nv;
       const ni=likertIndex(nv);
       document.getElementById(`val_${id}`).textContent=`${LIKERT[ni].label} · ${nv}%`;
-      this.style.background=`linear-gradient(90deg,${meta.color} ${nv}%,#f2d5dc ${nv}%)`;
+      this.style.background=`linear-gradient(90deg,${meta.color} ${nv}%,${sliderTrackColor()} ${nv}%)`;
       r.querySelectorAll('.lk').forEach((sp,i)=>{
         sp.classList.toggle('active',i===ni);
         sp.style.color=i===ni?meta.color:'';
       });
-      updateRadarChart();
     });
     r.querySelectorAll('.lk').forEach(sp=>{
       sp.style.cursor='pointer';
@@ -697,9 +722,6 @@ function renderSliders(){
   });
 }
 function getScores(){const d={visual:[],connection:[],personality:[],anxiety:[]};selectedTags.forEach(id=>{const t=TAGS.find(x=>x.id===id);if(t)d[t.dim].push(sliderValues[id]??50);});const s={};for(const[k,a]of Object.entries(d))s[k]=a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;return s;}
-function renderRadarChart(){const ctx=document.getElementById('radarChart').getContext('2d');if(radarChartInstance)radarChartInstance.destroy();const s=getScores();radarChartInstance=new Chart(ctx,{type:'radar',data:{labels:['外貌氣質','聊天共鳴','個性價值','暈船焦慮'],datasets:[{data:[s.visual,s.connection,s.personality,s.anxiety],backgroundColor:'rgba(230,59,97,.16)',borderColor:'#e63b61',borderWidth:2,pointBackgroundColor:'#ffffff',pointBorderColor:'#e63b61',pointBorderWidth:3,pointRadius:4}]},options:{responsive:true,scales:{r:{beginAtZero:true,max:100,grid:{color:'rgba(198,40,72,.13)'},angleLines:{color:'rgba(197,154,84,.22)'},pointLabels:{color:'#65404a',font:{size:13,family:"'Noto Sans TC'",weight:'700'}},ticks:{display:false}}},plugins:{legend:{display:false}}}});renderRadarLegend(s);}
-function updateRadarChart(){const s=getScores();if(radarChartInstance){radarChartInstance.data.datasets[0].data=[s.visual,s.connection,s.personality,s.anxiety];radarChartInstance.update();}renderRadarLegend(s);}
-function renderRadarLegend(s){const w=document.getElementById('radarLegend');w.innerHTML='';for(const[k,m]of Object.entries(DIM_META)){const sp=document.createElement('span');sp.style.color=m.color;sp.textContent=`● ${m.name}: ${s[k]}%`;w.appendChild(sp);}}
 
 // ── Step 3 ──
 function renderObstacles(){const l=document.getElementById('obstacleList');OBSTACLES.forEach(ob=>{const b=document.createElement('button');b.className='obstacle-card';b.dataset.id=ob.id;b.innerHTML=`<span class="ob-icon">${ob.emoji}</span>${ob.label}`;b.onclick=()=>selectObstacle(ob.id);l.appendChild(b);});}
@@ -799,10 +821,10 @@ function buildReport(report,scores){
 
   const obLabel=OBSTACLES.find(o=>o.id===selectedObstacle)?.label||'';
   const cards=[
-    {icon:"🧑‍💻",title:"你的心理狀態解析",content:report.psyche||'',color:"#e63b61",delay:500},
-    {icon:"👧",title:"在你眼中的她",content:report.perception||'',color:"#ff5c9a",delay:900},
-    {icon:"🚧",title:`阻礙突破指南 — ${obLabel}`,content:report.obstacle_advice||'',color:"#c59a54",delay:1300},
-    {icon:"💡",title:"下一步行動戰略",content:report.action||'',color:"#c82848",delay:1700},
+    {icon:"🧑‍💻",title:"你的心理狀態解析",content:report.psyche||'',color:DIM_META.visual.color,delay:500},
+    {icon:"👧",title:`在你眼中的${T().pronoun}`,content:report.perception||'',color:DIM_META.connection.color,delay:900},
+    {icon:"🚧",title:`阻礙突破指南 — ${obLabel}`,content:report.obstacle_advice||'',color:DIM_META.personality.color,delay:1300},
+    {icon:"💡",title:"下一步行動戰略",content:report.action||'',color:DIM_META.anxiety.color,delay:1700},
   ];
   const w=document.getElementById('reportCards');w.innerHTML='';
   cards.forEach(c=>{const d=document.createElement('div');d.className='report-card';d.style.borderLeft=`4px solid ${c.color}`;d.innerHTML=`<div class="report-card-title" style="color:${c.color}"><span class="rc-icon">${c.icon}</span>${c.title}</div><p>${c.content}</p>`;w.appendChild(d);setTimeout(()=>d.classList.add('show'),c.delay);});
