@@ -292,11 +292,15 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
   <div class="header">
     <div class="header-emoji">💘</div>
     <h1>戀愛情感導航系統</h1>
-    <p class="subtitle">LOVE EMOTION NAVIGATOR v1.9 · ☁️ Proxy Mode</p>
+    <p class="subtitle">LOVE EMOTION NAVIGATOR v2.0 · ☁️ Proxy Mode</p>
     <div class="step-dots" id="stepDots"></div>
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-track"><i class="prog-fill" id="progFill"></i></div>
+      <div class="prog-text" id="progText"></div>
+    </div>
   </div>
 
-  <div class="step" id="stepWelcome">
+  <div class="step visible" id="stepWelcome">
     <div class="welcome-hero">
       <p class="welcome-tagline" id="welcomeTagline">把你對她的感覺,化為一份<strong>專屬的情感地圖</strong><br>透過 5 個步驟的引導,看清自己、突破阻礙</p>
 
@@ -683,8 +687,8 @@ async function callOllama(messages){
     body:JSON.stringify({model:cfg.model,messages,temperature:0.8,stream:false}),
   });
   const data=await res.json();
-  if(!res.ok) throw new Error(data.error?.message||JSON.stringify(data.error)||`HTTP ${res.status}`);
-  return data.choices?.[0]?.message?.content||'';
+  if(!res.ok) throw new Error((data.error&&data.error.message)||JSON.stringify(data.error)||("HTTP "+res.status));
+  return (data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'';
 }
 
 // ── Init ──
@@ -702,7 +706,7 @@ function goStep(n){
 }
 function getBackStep(){
   const map={1:0,2:1,3:2,4:3,5:4,6:5};
-  return map[currentStep] ?? null;
+  return (map[currentStep]!==undefined?map[currentStep]:null);
 }
 function updateBackButton(){
   const btn=document.getElementById('pageBackBtn');
@@ -859,10 +863,10 @@ function renderSliders(){
     });
   });
 }
-function getScores(){const d={visual:[],connection:[],personality:[],anxiety:[]};selectedTags.forEach(id=>{const t=TAGS.find(x=>x.id===id);if(t)d[t.dim].push(sliderValues[id]??50);});const s={};for(const[k,a]of Object.entries(d))s[k]=a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;return s;}
+function getScores(){const d={visual:[],connection:[],personality:[],anxiety:[]};selectedTags.forEach(id=>{const t=TAGS.find(x=>x.id===id);if(t)d[t.dim].push((sliderValues[id]==null?50:sliderValues[id]));});const s={};for(const[k,a]of Object.entries(d))s[k]=a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):0;return s;}
 
 function getTargetProfile(){
-  const val=id=>document.getElementById(id)?.value?.trim()||'';
+  const val=function(id){var el=document.getElementById(id);return (el&&el.value?el.value.trim():'');};
   const age=val('profileAge');
   return {
     nickname:val('profileNickname'),
@@ -926,7 +930,7 @@ async function runAnalysis(){
     const note=t.custom?'(使用者自訂)':'';
     return `${t.label}${note}(感受強度:${sliderValues[id]}% — 李克特等級:「${lk}」,維度:${DIM_META[t.dim].name})`;
   }).join('\n');
-  const obLabel=OBSTACLES.find(o=>o.id===selectedObstacle)?.label||'';
+  const _ob=OBSTACLES.find(o=>o.id===selectedObstacle);const obLabel=(_ob&&_ob.label)||'';
 
   const _t=T();
   const _opp=_t.oppGender; // 使用者的性別(對象的相對方)
@@ -991,7 +995,7 @@ function buildReport(report,scores){
   document.getElementById('reportModelName').textContent=getOllamaConfig().model;
   const badge=document.getElementById('typeBadge');
   badge.innerHTML=`<div class="type-badge" id="typeBadgeInner"><div class="type-emoji">${report.type_emoji||'💘'}</div><div class="type-label">你的暈船類型</div><div class="type-name">${report.type_name||'分析完成'}</div><div class="type-desc">${report.type_desc||''}</div></div>`;
-  setTimeout(()=>document.getElementById('typeBadgeInner')?.classList.add('show'),200);
+  setTimeout(function(){var _tb=document.getElementById('typeBadgeInner');if(_tb)_tb.classList.add('show');},200);
 
   const dimWrap=document.getElementById('dimSummary');dimWrap.innerHTML='';
   for(const[k,m]of Object.entries(DIM_META)){
@@ -1001,7 +1005,7 @@ function buildReport(report,scores){
     dimWrap.appendChild(c);
   }
 
-  const obLabel=OBSTACLES.find(o=>o.id===selectedObstacle)?.label||'';
+  const _ob=OBSTACLES.find(o=>o.id===selectedObstacle);const obLabel=(_ob&&_ob.label)||'';
   const cards=[
     {icon:"🧑‍💻",title:"你的心理狀態解析",content:report.psyche||'',color:DIM_META.visual.color,delay:500},
     {icon:"👧",title:`在你眼中的${T().pronoun}`,content:report.perception||'',color:DIM_META.connection.color,delay:900},
@@ -1346,7 +1350,15 @@ async function copyAnalysis(){
   }
 }
 
-init();
+window.onerror=function(msg,url,line,col){
+  var b=document.getElementById('bootErr');
+  if(!b){b=document.createElement('div');b.id='bootErr';
+    b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#c82848;color:#fff;font:12px/1.6 monospace;padding:10px 14px;white-space:pre-wrap;word-break:break-all';
+    document.body.appendChild(b);}
+  b.textContent='\u26A0 JS \u932F\u8AA4\uFF1A'+msg+'\n\u884C '+line+':'+col;
+  return false;
+};
+try{ init(); }catch(e){ window.onerror(e.message,'',0,0); }
 </script>
 <script>
 // PWA Service Worker 註冊
@@ -1358,5 +1370,623 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<!-- ════════════ v2.0 互動增強層 ════════════ -->
+<style>
+/* ── 粒子 / 氛圍 ── */
+#fxLayer{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.fx-p{position:absolute;will-change:transform,opacity;animation:fxFly var(--dur,1.2s) cubic-bezier(.18,.7,.35,1) forwards;line-height:1}
+@keyframes fxFly{0%{transform:translate(-50%,-50%) scale(.35) rotate(0deg);opacity:1}
+100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(var(--sc,1.15)) rotate(var(--rot,30deg));opacity:0}}
+#fxAmbient{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.fx-petal{position:absolute;top:-6vh;opacity:0;animation:fxFall linear infinite}
+@keyframes fxFall{0%{transform:translateY(-6vh) translateX(0) rotate(0deg);opacity:0}
+12%{opacity:.5}88%{opacity:.42}
+100%{transform:translateY(108vh) translateX(var(--drift,30px)) rotate(420deg);opacity:0}}
+
+/* ── 右下角控制列 ── */
+.fx-controls{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));z-index:45;display:flex;flex-direction:column;gap:9px}
+.fx-btn{width:46px;height:46px;border-radius:50%;border:1px solid var(--ring-a);background:rgba(255,255,255,.9);color:#b89aa2;font-size:19px;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 24px var(--line);transition:transform .22s ease,color .3s ease,background .3s ease;position:relative;-webkit-tap-highlight-color:transparent;padding:0}
+.fx-btn:hover{transform:scale(1.08);background:#fff}
+.fx-btn:active{transform:scale(.94)}
+.fx-btn.on{color:var(--red);background:#fff}
+.fx-btn.off::after{content:'';position:absolute;left:10px;right:10px;top:50%;height:2px;background:#c9a7b0;transform:rotate(-42deg);border-radius:2px}
+.fx-note{position:absolute;right:56px;top:50%;transform:translateY(-50%) translateX(8px);white-space:nowrap;background:rgba(56,33,42,.92);color:#fff;font-size:12px;font-weight:700;padding:7px 12px;border-radius:999px;opacity:0;pointer-events:none;transition:all .3s ease}
+.fx-note.show{opacity:1;transform:translateY(-50%) translateX(0)}
+@keyframes fxSpin{to{transform:rotate(360deg)}}
+.fx-btn .fx-ico.spin{animation:fxSpin 5s linear infinite;display:block}
+
+/* ── Toast ── */
+.fx-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(14px);z-index:70;background:rgba(56,33,42,.94);color:#fff;padding:12px 20px;border-radius:999px;font-size:13.5px;font-weight:800;letter-spacing:.5px;opacity:0;transition:opacity .35s ease,transform .35s ease;pointer-events:none;max-width:88vw;text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.2)}
+.fx-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── 進度條 ── */
+.prog-wrap{margin-top:14px;display:none;padding:0 6px}
+.prog-wrap.show{display:block;animation:fadeIn .4s ease}
+.prog-track{height:8px;border-radius:999px;background:var(--track);overflow:hidden;box-shadow:inset 0 1px 3px rgba(198,40,72,.14)}
+.prog-fill{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--pink));transition:width .65s cubic-bezier(.4,0,.2,1);box-shadow:0 0 10px rgba(255,92,154,.5)}
+.prog-text{font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-top:8px;font-weight:800}
+
+/* ── 標籤選取回饋 ── */
+@keyframes chipPop{0%{transform:scale(1)}45%{transform:scale(1.07)}100%{transform:scale(1)}}
+.tag-chip.just-picked{animation:chipPop .34s ease}
+@keyframes rowShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.tags-grid.full-shake{animation:rowShake .32s ease}
+.obstacle-card.just-picked{animation:chipPop .34s ease}
+
+/* ── Step 2 心動儀表 ── */
+.heart-meter{display:flex;align-items:center;gap:15px;padding:16px 18px;border-radius:22px;background:linear-gradient(135deg,#fff,var(--blush));border:1px solid var(--ring-a);box-shadow:var(--shadow);margin-bottom:20px}
+.hm-face{font-size:42px;line-height:1;transition:transform .35s cubic-bezier(.34,1.56,.64,1);flex-shrink:0}
+.hm-face.bump{transform:scale(1.22)}
+.hm-body{flex:1;min-width:0}
+.hm-title{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:2px}
+.hm-val{font-size:27px;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--red);line-height:1.25}
+.hm-val small{font-size:13px;font-weight:800;font-family:'Noto Sans TC',sans-serif;color:var(--muted);margin-left:8px;letter-spacing:0}
+.hm-track{height:7px;border-radius:999px;background:var(--track);margin-top:9px;overflow:hidden}
+.hm-fill{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--pink));transition:width .28s ease}
+.lk-face{margin-left:8px;font-size:16px;transition:transform .25s ease;display:inline-block}
+
+/* ── 分析中 ── */
+.an-track{width:min(280px,72vw);height:7px;border-radius:999px;background:var(--track);margin:22px auto 0;overflow:hidden}
+.an-fill{display:block;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--red),var(--pink));transition:width .9s ease}
+.an-tip{font-size:12px;color:var(--muted);margin-top:16px;line-height:1.8;min-height:22px;transition:opacity .3s ease;padding:0 20px}
+
+/* ── 雷達圖 ── */
+#radarWrap{margin-bottom:24px}
+#radarCanvas{display:block;margin:0 auto}
+</style>
+
+<audio id="bgm" src="music.mp3" loop preload="auto"></audio>
+<div id="fxAmbient"></div>
+<div id="fxLayer"></div>
+<div class="fx-toast" id="fxToast"></div>
+<div class="fx-controls">
+  <button class="fx-btn off" id="btnMusic" type="button" aria-label="背景音樂開關" title="背景音樂"><span class="fx-ico" id="musicIco">🎵</span><span class="fx-note" id="musicNote"></span></button>
+  <button class="fx-btn on" id="btnSfx" type="button" aria-label="音效開關" title="互動音效">🔊</button>
+</div>
+
+<script>
+(function(){
+'use strict';
+var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var FX = { sfx:true, musicOn:false, musicWanted:true, musicBroken:false };
+
+/* ══════ 觸覺 ══════ */
+function buzz(ms){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
+
+/* ══════ 合成音效(不需外部檔案) ══════ */
+var actx=null;
+function ctx(){
+  if(!actx){ try{ var AC=window.AudioContext||window.webkitAudioContext; if(AC) actx=new AC(); }catch(e){ actx=null; } }
+  if(actx && actx.state==='suspended'){ try{ actx.resume(); }catch(e){} }
+  return actx;
+}
+function tone(freq,start,dur,vol,type,glide){
+  var a=ctx(); if(!a) return;
+  var t=a.currentTime+start;
+  var o=a.createOscillator(), g=a.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(freq,t);
+  if(glide) o.frequency.exponentialRampToValueAtTime(glide,t+dur);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(vol||0.09,t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+0.03);
+}
+function sfx(name){
+  if(!FX.sfx) return;
+  switch(name){
+    case 'tap':     tone(760,0,.09,.05,'sine'); break;
+    case 'pick':    tone(660,0,.1,.07,'sine'); tone(990,.06,.14,.055,'sine'); break;
+    case 'unpick':  tone(520,0,.11,.05,'sine',360); break;
+    case 'step':    tone(523,0,.12,.06,'triangle'); tone(784,.08,.18,.05,'triangle'); break;
+    case 'done':    [523,659,784,1047].forEach(function(f,i){ tone(f,i*0.09,.3,.07,'triangle'); }); break;
+    case 'full':    [784,988,1319].forEach(function(f,i){ tone(f,i*0.07,.24,.06,'sine'); }); break;
+    case 'err':     tone(300,0,.2,.07,'sawtooth',170); break;
+    case 'slide':   tone(1100,0,.04,.022,'sine'); break;
+  }
+}
+
+/* ══════ 粒子 ══════ */
+var layer=document.getElementById('fxLayer');
+var HEARTS=['💗','💕','💖','✨','🌸','💘'];
+function burst(x,y,n,chars,spread){
+  if(reduced||!layer) return;
+  chars=chars||HEARTS; n=n||10; spread=spread||130;
+  for(var i=0;i<n;i++){
+    (function(i){
+      var s=document.createElement('span');
+      s.className='fx-p';
+      s.textContent=chars[Math.floor(Math.random()*chars.length)];
+      var ang=(Math.PI*2*i)/n + (Math.random()-.5)*0.8;
+      var dist=spread*(0.45+Math.random()*0.75);
+      s.style.left=x+'px'; s.style.top=y+'px';
+      s.style.fontSize=(13+Math.random()*15)+'px';
+      s.style.setProperty('--dx', Math.cos(ang)*dist+'px');
+      s.style.setProperty('--dy', (Math.sin(ang)*dist-50)+'px');
+      s.style.setProperty('--sc', (0.8+Math.random()*0.9).toFixed(2));
+      s.style.setProperty('--rot', ((Math.random()-.5)*150).toFixed(0)+'deg');
+      s.style.setProperty('--dur', (0.9+Math.random()*0.7).toFixed(2)+'s');
+      layer.appendChild(s);
+      setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },1750);
+    })(i);
+  }
+}
+function rain(n,chars){
+  if(reduced||!layer) return;
+  chars=chars||['💖','✨','🌸','💕','🎉','⭐'];
+  for(var i=0;i<n;i++){
+    (function(i){
+      setTimeout(function(){
+        var s=document.createElement('span');
+        s.className='fx-p';
+        s.textContent=chars[Math.floor(Math.random()*chars.length)];
+        s.style.left=(Math.random()*100)+'vw'; s.style.top='-4vh';
+        s.style.fontSize=(16+Math.random()*16)+'px';
+        s.style.setProperty('--dx',((Math.random()-.5)*120)+'px');
+        s.style.setProperty('--dy','105vh');
+        s.style.setProperty('--sc','1');
+        s.style.setProperty('--rot',((Math.random()-.5)*540).toFixed(0)+'deg');
+        s.style.setProperty('--dur',(2.4+Math.random()*1.6).toFixed(2)+'s');
+        layer.appendChild(s);
+        setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },4200);
+      }, i*55);
+    })(i);
+  }
+}
+/* 背景飄落花瓣 */
+(function ambient(){
+  if(reduced) return;
+  var box=document.getElementById('fxAmbient'); if(!box) return;
+  var chars=['🌸','✿','❀','💮','·'];
+  for(var i=0;i<11;i++){
+    var s=document.createElement('span');
+    s.className='fx-petal';
+    s.textContent=chars[Math.floor(Math.random()*chars.length)];
+    s.style.left=(Math.random()*100)+'vw';
+    s.style.fontSize=(10+Math.random()*15)+'px';
+    s.style.animationDuration=(14+Math.random()*16)+'s';
+    s.style.animationDelay=(-Math.random()*24)+'s';
+    s.style.setProperty('--drift',((Math.random()-.5)*130).toFixed(0)+'px');
+    box.appendChild(s);
+  }
+})();
+
+/* ══════ Toast ══════ */
+var toastEl=document.getElementById('fxToast'), toastT=null;
+function toast(msg,ms){
+  if(!toastEl) return;
+  toastEl.textContent=msg; toastEl.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(function(){ toastEl.classList.remove('show'); }, ms||2400);
+}
+
+/* ══════ 背景音樂 ══════ */
+var bgm=document.getElementById('bgm');
+var btnMusic=document.getElementById('btnMusic');
+var musicIco=document.getElementById('musicIco');
+var musicNote=document.getElementById('musicNote');
+var fadeTimer=null;
+function fadeTo(target,ms,cb){
+  clearInterval(fadeTimer);
+  var steps=Math.max(1,Math.round(ms/40)), i=0, from=bgm.volume;
+  fadeTimer=setInterval(function(){
+    i++; bgm.volume=Math.max(0,Math.min(1, from+(target-from)*(i/steps)));
+    if(i>=steps){ clearInterval(fadeTimer); if(cb) cb(); }
+  },40);
+}
+function note(txt){
+  if(!musicNote) return;
+  musicNote.textContent=txt; musicNote.classList.add('show');
+  setTimeout(function(){ musicNote.classList.remove('show'); },2600);
+}
+function musicUI(){
+  btnMusic.classList.toggle('on',FX.musicOn);
+  btnMusic.classList.toggle('off',!FX.musicOn);
+  musicIco.classList.toggle('spin',FX.musicOn);
+}
+function playMusic(silent){
+  if(FX.musicBroken){ note('找不到 music.mp3'); return; }
+  bgm.volume=0;
+  var p=bgm.play();
+  if(p && p.then){
+    p.then(function(){
+      FX.musicOn=true; musicUI(); fadeTo(0.32,1400);
+      if(!silent) note('音樂開啟');
+    }).catch(function(){
+      FX.musicOn=false; musicUI();
+      if(!silent) note('瀏覽器擋住了,再點一次');
+    });
+  } else { FX.musicOn=true; musicUI(); fadeTo(0.32,1400); }
+}
+function stopMusic(){
+  fadeTo(0,600,function(){ try{ bgm.pause(); }catch(e){} });
+  FX.musicOn=false; musicUI();
+}
+bgm.addEventListener('error',function(){
+  FX.musicBroken=true; FX.musicOn=false; musicUI();
+});
+btnMusic.addEventListener('click',function(e){
+  e.stopPropagation();
+  FX.musicWanted=!FX.musicOn;
+  if(FX.musicOn) stopMusic(); else playMusic();
+  sfx('tap'); buzz(10);
+});
+/* 首次互動時自動開始(繞過瀏覽器自動播放限制) */
+var kicked=false;
+function kickstart(e){
+  if(e && e.target && e.target.closest && e.target.closest('.fx-controls')) return;
+  if(kicked) return; kicked=true;
+  ctx();
+  if(FX.musicWanted && !FX.musicOn && !FX.musicBroken){
+    playMusic(true);
+    setTimeout(function(){ if(FX.musicOn) toast('🎵 背景音樂已開啟 · 右下角可關閉'); },900);
+  }
+}
+['pointerdown','touchstart','keydown'].forEach(function(ev){
+  document.addEventListener(ev,kickstart,{once:true,passive:true});
+});
+musicUI();
+
+/* 音效開關 */
+var btnSfx=document.getElementById('btnSfx');
+btnSfx.addEventListener('click',function(e){
+  e.stopPropagation();
+  FX.sfx=!FX.sfx;
+  btnSfx.classList.toggle('on',FX.sfx);
+  btnSfx.classList.toggle('off',!FX.sfx);
+  btnSfx.textContent=FX.sfx?'🔊':'🔇';
+  if(FX.sfx) sfx('pick');
+  note2(FX.sfx?'音效開啟':'音效關閉');
+});
+function note2(t){ toast(t,1400); }
+
+/* ══════ 全域點擊音效 + 愛心 ══════ */
+document.addEventListener('click',function(e){
+  var t=e.target;
+  var chip=t.closest && t.closest('.tag-chip');
+  var ob=t.closest && t.closest('.obstacle-card');
+  var prim=t.closest && t.closest('.btn-primary');
+  var soft=t.closest && t.closest('.btn-ghost,.back-link,.btn-pdf,.gender-opt,.add-tag-toggle,.btn-copy,.btn-end,.page-back,.lk');
+  if(chip){
+    var on=chip.classList.contains('selected');
+    sfx(on?'pick':'unpick'); buzz(on?14:8);
+    chip.classList.remove('just-picked'); void chip.offsetWidth; chip.classList.add('just-picked');
+    if(on) burst(e.clientX,e.clientY,6,['💗','✨'],80);
+  } else if(ob){
+    sfx('pick'); buzz(14);
+    ob.classList.remove('just-picked'); void ob.offsetWidth; ob.classList.add('just-picked');
+    burst(e.clientX,e.clientY,7,['💥','✨','💗'],90);
+  } else if(prim){
+    sfx('step'); buzz(16);
+    burst(e.clientX||window.innerWidth/2, e.clientY||window.innerHeight/2, 12, HEARTS, 150);
+  } else if(soft){
+    sfx('tap'); buzz(8);
+  }
+},false);
+
+/* ══════ 進度條 ══════ */
+var STEP_NAMES={1:'挑選特質',2:'量化感受',3:'找出阻礙',4:'診斷報告',5:'截圖分析'};
+function updateProgress(n){
+  var w=document.getElementById('progWrap'),
+      f=document.getElementById('progFill'),
+      t=document.getElementById('progText');
+  if(!w) return;
+  if(n>=1 && n<=5){
+    w.classList.add('show');
+    f.style.width=(n/5*100)+'%';
+    t.textContent='STEP '+n+' / 5 　·　'+(STEP_NAMES[n]||'')+'　·　'+Math.round(n/5*100)+'%';
+  } else {
+    w.classList.remove('show');
+    f.style.width='0%';
+  }
+}
+
+/* ══════ 包裝 goStep ══════ */
+var _goStep=window.goStep;
+window.goStep=function(n){
+  var prev=(typeof currentStep!=='undefined')?currentStep:-1;
+  _goStep.apply(this,arguments);
+  updateProgress(n);
+  if(n!==prev){
+    if(n===2) setTimeout(mountHeartMeter,30);
+    if(n===6){ sfx('done'); rain(26); }
+  }
+};
+
+/* ══════ 包裝 toggleTag:選滿 5 個的慶祝 ══════ */
+if(window.toggleTag){
+  var _toggleTag=window.toggleTag;
+  window.toggleTag=function(id){
+    var before=(typeof selectedTags!=='undefined')?selectedTags.length:0;
+    _toggleTag.apply(this,arguments);
+    var after=(typeof selectedTags!=='undefined')?selectedTags.length:0;
+    if(after===5 && before===4){
+      sfx('full'); buzz([18,40,18]);
+      var g=document.getElementById('tagsGrid');
+      if(g && !reduced){ g.classList.remove('full-shake'); void g.offsetWidth; g.classList.add('full-shake'); }
+      toast('✨ 已選滿 5 個特質,可以進下一步了');
+    }
+  };
+}
+
+/* ══════ Step 2:心動儀表 + 滑桿表情 ══════ */
+var FACES=[
+  {v:0,  e:'😶', t:'還很淡'},
+  {v:20, e:'🙂', t:'有點在意'},
+  {v:40, e:'😊', t:'開始有感'},
+  {v:60, e:'😳', t:'心跳加速'},
+  {v:78, e:'😍', t:'明顯暈船'},
+  {v:90, e:'🥰', t:'完全淪陷'}
+];
+function faceFor(v){
+  var f=FACES[0];
+  for(var i=0;i<FACES.length;i++){ if(v>=FACES[i].v) f=FACES[i]; }
+  return f;
+}
+function avgValue(){
+  if(typeof selectedTags==='undefined'||!selectedTags.length) return 0;
+  var s=0,c=0;
+  selectedTags.forEach(function(id){
+    var v=(typeof sliderValues!=='undefined' && sliderValues[id]!=null)?sliderValues[id]:50;
+    s+=v; c++;
+  });
+  return c?Math.round(s/c):0;
+}
+function mountHeartMeter(){
+  var wrap=document.getElementById('slidersWrap');
+  if(!wrap || wrap.querySelector('.heart-meter')) { refreshMeter(); return; }
+  var m=document.createElement('div');
+  m.className='heart-meter';
+  m.innerHTML='<div class="hm-face" id="hmFace">🙂</div>'+
+    '<div class="hm-body"><div class="hm-title">目前的心動指數</div>'+
+    '<div class="hm-val"><span id="hmVal">0</span>%<small id="hmTxt">拖動下方滑桿試試</small></div>'+
+    '<div class="hm-track"><i class="hm-fill" id="hmFill"></i></div></div>';
+  wrap.insertBefore(m,wrap.firstChild);
+  /* 每個滑桿加一顆表情 */
+  wrap.querySelectorAll('.slider-row').forEach(function(row){
+    var inp=row.querySelector('.slider-input');
+    var lbl=row.querySelector('.slider-val');
+    if(!inp||!lbl||lbl.querySelector('.lk-face')) return;
+    var f=document.createElement('span');
+    f.className='lk-face';
+    f.textContent=faceFor(parseInt(inp.value,10)).e;
+    lbl.parentNode.appendChild(f);
+    inp.dataset.faceOwner='1';
+  });
+  refreshMeter();
+}
+var lastFace='', slideThrottle=0;
+function refreshMeter(){
+  var v=avgValue(), f=faceFor(v);
+  var val=document.getElementById('hmVal'), fill=document.getElementById('hmFill'),
+      face=document.getElementById('hmFace'), txt=document.getElementById('hmTxt');
+  if(!val) return;
+  val.textContent=v; fill.style.width=v+'%'; txt.textContent=f.t;
+  if(f.e!==lastFace){
+    lastFace=f.e; face.textContent=f.e;
+    face.classList.remove('bump'); void face.offsetWidth; face.classList.add('bump');
+  }
+}
+document.addEventListener('input',function(e){
+  if(!e.target.classList || !e.target.classList.contains('slider-input')) return;
+  var row=e.target.closest('.slider-row');
+  if(row){
+    var f=row.querySelector('.lk-face');
+    if(f) f.textContent=faceFor(parseInt(e.target.value,10)).e;
+  }
+  refreshMeter();
+  var now=Date.now();
+  if(now-slideThrottle>110){ slideThrottle=now; sfx('slide'); }
+},false);
+
+if(window.renderSliders){
+  var _renderSliders=window.renderSliders;
+  window.renderSliders=function(){
+    _renderSliders.apply(this,arguments);
+    setTimeout(mountHeartMeter,10);
+  };
+}
+
+/* ══════ 分析中:輪播提示 + 假進度 ══════ */
+var TIPS=[
+  '正在解析你挑的特質組合…',
+  '把李克特分數換算成情感座標…',
+  '比對「剛認識的客套距離感」…',
+  '幫對方建立一份可對話的人格…',
+  '交叉檢查你選的那道牆…',
+  '整理成一份你看得懂的報告…',
+  '快好了,最後潤飾一下文字…'
+];
+var anTimer=null, anProg=0;
+function anStart(){
+  var host=document.querySelector('#stepAnalyzing .analyzing');
+  if(!host) return;
+  if(!document.getElementById('anTrack')){
+    var d=document.createElement('div');
+    d.innerHTML='<div class="an-track"><i class="an-fill" id="anFill"></i></div><p class="an-tip" id="anTip"></p>';
+    host.appendChild(d);
+  }
+  anProg=6; var i=0;
+  var fill=document.getElementById('anFill'), tip=document.getElementById('anTip');
+  fill.style.width='6%'; tip.textContent=TIPS[0];
+  clearInterval(anTimer);
+  anTimer=setInterval(function(){
+    i=(i+1)%TIPS.length;
+    anProg=Math.min(94, anProg + (94-anProg)*0.22 + 3);
+    if(fill) fill.style.width=anProg.toFixed(1)+'%';
+    if(tip){ tip.style.opacity=0; setTimeout(function(){ tip.textContent=TIPS[i]; tip.style.opacity=1; },280); }
+  },2600);
+}
+function anStop(ok){
+  clearInterval(anTimer); anTimer=null;
+  var fill=document.getElementById('anFill');
+  if(fill) fill.style.width=ok?'100%':'0%';
+}
+if(window.runAnalysis){
+  var _runAnalysis=window.runAnalysis;
+  window.runAnalysis=function(){
+    var r=_runAnalysis.apply(this,arguments);
+    setTimeout(anStart,60);
+    if(r && r.then) r.then(function(){ anStop(true); },function(){ anStop(false); });
+    return r;
+  };
+}
+
+/* ══════ Step 4:雷達圖 + 數字滾動 + 慶祝 ══════ */
+function mountRadar(){
+  var body=document.getElementById('reportBody');
+  var dim=document.getElementById('dimSummary');
+  if(!body||!dim||document.getElementById('radarWrap')) return;
+  var w=document.createElement('div');
+  w.className='radar-wrap'; w.id='radarWrap';
+  w.innerHTML='<canvas id="radarCanvas"></canvas><div class="radar-legend" id="radarLegend"></div>';
+  body.insertBefore(w,dim);
+}
+function drawRadar(scores){
+  mountRadar();
+  var wrap=document.getElementById('radarWrap'), cv=document.getElementById('radarCanvas');
+  if(!wrap||!cv||!cv.getContext) return;
+  var keys=['visual','connection','personality','anxiety'];
+  var lg=document.getElementById('radarLegend');
+  if(lg){
+    lg.innerHTML=keys.map(function(k){
+      return '<span style="color:'+DIM_META[k].color+'">● '+DIM_META[k].name+'</span>';
+    }).join('');
+  }
+  var W=Math.max(240,wrap.clientWidth-24), H=250;
+  var dpr=window.devicePixelRatio||1;
+  cv.width=W*dpr; cv.height=H*dpr; cv.style.width=W+'px'; cv.style.height=H+'px';
+  var g=null;
+  try{ g=cv.getContext('2d'); }catch(e){}
+  if(!g||!g.setTransform){ wrap.style.display='none'; return; }
+  g.setTransform(dpr,0,0,dpr,0,0);
+  var cx=W/2, cy=H/2+4, R=Math.min(W,H)/2-52;
+  var ang=[-Math.PI/2, 0, Math.PI/2, Math.PI];
+  var t0=null, DUR=reduced?1:900;
+  function ease(p){ return 1-Math.pow(1-p,3); }
+  function frame(ts){
+    if(!t0) t0=ts;
+    var p=Math.min(1,(ts-t0)/DUR), k=ease(p);
+    g.clearRect(0,0,W,H);
+    /* 網格 */
+    for(var lv=1;lv<=4;lv++){
+      g.beginPath();
+      for(var i=0;i<4;i++){
+        var r=R*lv/4, x=cx+Math.cos(ang[i])*r, y=cy+Math.sin(ang[i])*r;
+        if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
+      }
+      g.closePath();
+      g.strokeStyle=lv===4?'rgba(198,40,72,.28)':'rgba(198,40,72,.12)';
+      g.lineWidth=1; g.stroke();
+    }
+    for(var i=0;i<4;i++){
+      g.beginPath(); g.moveTo(cx,cy);
+      g.lineTo(cx+Math.cos(ang[i])*R, cy+Math.sin(ang[i])*R);
+      g.strokeStyle='rgba(198,40,72,.14)'; g.stroke();
+    }
+    /* 資料多邊形 */
+    g.beginPath();
+    for(var i=0;i<4;i++){
+      var val=(scores[keys[i]]||0)/100*k;
+      var r=R*Math.max(0.02,val);
+      var x=cx+Math.cos(ang[i])*r, y=cy+Math.sin(ang[i])*r;
+      if(i===0) g.moveTo(x,y); else g.lineTo(x,y);
+    }
+    g.closePath();
+    var grd=g.createLinearGradient(cx-R,cy-R,cx+R,cy+R);
+    grd.addColorStop(0, hexA(DIM_META.visual.color,.34));
+    grd.addColorStop(1, hexA(DIM_META.connection.color,.30));
+    g.fillStyle=grd; g.fill();
+    g.strokeStyle=DIM_META.visual.color; g.lineWidth=2.2; g.stroke();
+    /* 頂點 */
+    for(var i=0;i<4;i++){
+      var val=(scores[keys[i]]||0)/100*k;
+      var r=R*Math.max(0.02,val);
+      var x=cx+Math.cos(ang[i])*r, y=cy+Math.sin(ang[i])*r;
+      g.beginPath(); g.arc(x,y,4.5,0,Math.PI*2);
+      g.fillStyle='#fff'; g.fill();
+      g.strokeStyle=DIM_META[keys[i]].color; g.lineWidth=2.6; g.stroke();
+    }
+    /* 標籤 */
+    g.font='700 12px "Noto Sans TC",sans-serif';
+    g.textAlign='center'; g.textBaseline='middle';
+    var pad=[[0,-R-22],[R+38,0],[0,R+22],[-R-38,0]];
+    for(var i=0;i<4;i++){
+      g.fillStyle=DIM_META[keys[i]].color;
+      g.fillText(DIM_META[keys[i]].name, cx+pad[i][0], cy+pad[i][1]);
+      g.font='900 13px "JetBrains Mono",monospace';
+      g.fillText(Math.round((scores[keys[i]]||0)*k)+'%', cx+pad[i][0], cy+pad[i][1]+15);
+      g.font='700 12px "Noto Sans TC",sans-serif';
+    }
+    if(p<1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+function hexA(hex,a){
+  var h=(hex||'#e63b61').replace('#','');
+  if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n=parseInt(h,16);
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+a+')';
+}
+function countUp(el,to){
+  var t0=null, DUR=reduced?1:1000;
+  function s(ts){
+    if(!t0) t0=ts;
+    var p=Math.min(1,(ts-t0)/DUR);
+    el.textContent=Math.round(to*(1-Math.pow(1-p,3)))+'%';
+    if(p<1) requestAnimationFrame(s);
+  }
+  requestAnimationFrame(s);
+}
+if(window.buildReport){
+  var _buildReport=window.buildReport;
+  window.buildReport=function(report,scores){
+    _buildReport.apply(this,arguments);
+    try{ drawRadar(scores||{}); }catch(e){ console.warn('[FX] radar',e); }
+    try{
+      var cells=document.querySelectorAll('#dimSummary .dim-val');
+      var keys=['visual','connection','personality','anxiety'];
+      cells.forEach(function(el,i){
+        var target=(scores&&scores[keys[i]])||0;
+        el.textContent='0%'; countUp(el,target);
+      });
+      setTimeout(function(){
+        sfx('done'); buzz([20,50,20]); rain(22);
+        var b=document.getElementById('typeBadgeInner');
+        if(b){ var r=b.getBoundingClientRect(); burst(r.left+r.width/2, r.top+r.height/2, 16, HEARTS, 190); }
+      },520);
+    }catch(e){ console.warn('[FX] report enhance',e); }
+  };
+}
+
+/* 視窗縮放時重繪雷達 */
+var rzT=null;
+window.addEventListener('resize',function(){
+  clearTimeout(rzT);
+  rzT=setTimeout(function(){
+    if(typeof lastAnalysis!=='undefined' && lastAnalysis && document.getElementById('radarCanvas') &&
+       document.getElementById('step4').classList.contains('visible')){
+      drawRadar(lastAnalysis.scores||{});
+    }
+  },260);
+});
+
+/* ══════ 鍵盤快捷:Enter 進下一步 ══════ */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter') return;
+  var tag=(e.target.tagName||'').toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||tag==='button') return;
+  var vis=document.querySelector('.step.visible');
+  if(!vis) return;
+  var btn=vis.querySelector('.btn-primary:not(:disabled)');
+  if(btn){ btn.click(); }
+});
+
+/* ══════ 初始化 ══════ */
+updateProgress(typeof currentStep!=='undefined'?currentStep:0);
+console.log('%c💘 Love Navigator v2.0 — 互動增強已載入','color:#e63b61;font-weight:900');
+})();
+</script>
+
 </body>
 </html>
