@@ -6,10 +6,12 @@
  *  - 其他 GET:network-first,失敗才用快取
  */
 
-const CACHE_NAME = 'love-navigator-v2';
+const CACHE_NAME = 'love-navigator-v3-attachment';
 const PRECACHE_URLS = [
   './',
   './index.html',
+  './attachment-quiz.css',
+  './attachment-quiz.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

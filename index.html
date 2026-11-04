@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>戀愛情感導航系統</title>
+<link rel="stylesheet" href="attachment-quiz.css">
+<script defer src="attachment-quiz.js"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#e63b61">
@@ -322,9 +324,22 @@ body.theme-changing .header,body.theme-changing .welcome-hero,body.theme-changin
       <div class="welcome-cta">
         <button class="btn-primary" onclick="goStep(1)">開始分析 ✨</button>
       </div>
+      <section class="attachment-entry" aria-labelledby="attachmentEntryTitle">
+        <h2 id="attachmentEntryTitle">💞 依附風格測驗</h2>
+        <p>除了看懂心動，也認識自己如何靠近。透過 24 題，探索安全型、焦慮型、逃避型與混合型傾向。</p>
+        <button class="btn-primary" id="attachmentStart" type="button">探索我的依附風格</button>
+        <p class="attachment-entry-note">約 4–6 分鐘・自我探索，非心理診斷・答案不會上傳</p>
+      </section>
       <p class="welcome-note" id="welcomeNote">⚠️ 這是基於你主觀認知的自我反思工具,不是預測她心意的占卜,請以此作為破冰勇氣的練習,而非決定關係的依據。</p>
     </div>
   </div>
+
+  <section class="step" id="attachmentQuiz" aria-labelledby="attachmentTitle">
+    <h2 id="attachmentTitle" tabindex="-1">依附風格測驗</h2>
+    <p class="attachment-small">看見自己的關係習慣，練習更自在地靠近。</p>
+    <div id="attachmentContent"></div>
+    <button class="btn-ghost attachment-home" id="attachmentHome" type="button">返回首頁（保留本次進度）</button>
+  </section>
 
   <div class="step" id="step1">
     <h2 id="step1H2">Step 1 — 她給你的印象是?</h2>
@@ -698,14 +713,14 @@ function goStep(n){
   if(n===2)initSliders();
   currentStep=n;
   document.querySelectorAll('.step').forEach(el=>el.classList.remove('visible'));
-  const m={0:'stepWelcome',1:'step1',2:'step2',3:'step3',4:'step4',5:'step5',6:'stepGoodLuck'};
+  const m={0:'stepWelcome',1:'step1',2:'step2',3:'step3',4:'step4',5:'step5',6:'stepGoodLuck',7:'attachmentQuiz'};
   if(m[n])document.getElementById(m[n]).classList.add('visible');
   renderStepDots();
   updateBackButton();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function getBackStep(){
-  const map={1:0,2:1,3:2,4:3,5:4,6:5};
+  const map={1:0,2:1,3:2,4:3,5:4,6:5,7:0};
   return (map[currentStep]!==undefined?map[currentStep]:null);
 }
 function updateBackButton(){
@@ -723,7 +738,7 @@ function goBack(){
 function renderStepDots(){
   const w=document.getElementById('stepDots');
   // 歡迎頁(0)與祝福頁(6)隱藏進度點 — 進度條只在主流程 1~5 顯示
-  if(currentStep===0||currentStep===6){w.style.display='none';w.innerHTML='';return;}
+  if(currentStep===0||currentStep===6||currentStep===7){w.style.display='none';w.innerHTML='';return;}
   w.style.display='flex';
   w.innerHTML='';
   for(let i=1;i<=5;i++){
