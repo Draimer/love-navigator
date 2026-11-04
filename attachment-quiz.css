@@ -1,0 +1,60 @@
+/* Reuse the site's pink/blue theme tokens. All new rules stay within the quiz. */
+.attachment-entry{margin:28px 0 8px;padding:22px;text-align:left;border:1px solid var(--ring-a);border-radius:24px;background:var(--paper);box-shadow:var(--shadow)}
+.attachment-entry h2{color:var(--red);font-size:22px;margin-bottom:8px}
+.attachment-entry p{color:var(--ink);font-size:14px;line-height:1.8;margin-bottom:14px}
+.attachment-entry .attachment-entry-note{color:var(--muted);font-size:12px;margin:12px 0 0}
+#attachmentQuiz{padding:22px;background:var(--paper);border:1px solid var(--ring-a);border-radius:24px;box-shadow:var(--shadow);line-height:1.8;scroll-margin-top:16px}
+#attachmentQuiz h2{color:var(--red);margin-bottom:6px}
+#attachmentQuiz h3{font-size:17px;margin:22px 0 8px;line-height:1.6}
+#attachmentQuiz p{margin-bottom:14px}
+#attachmentQuiz .attachment-small,#attachmentQuiz figcaption{font-size:12px;color:var(--muted);line-height:1.8}
+#attachmentQuiz .attachment-lead{font-weight:700;font-size:18px;color:var(--ink)}
+#attachmentQuiz .attachment-notice{background:var(--blush);border-left:3px solid var(--rose);border-radius:0 14px 14px 0;padding:14px 16px;margin:18px 0;font-size:13px}
+#attachmentQuiz .attachment-notice p:last-child{margin-bottom:0}
+#attachmentQuiz .attachment-home{display:block;margin:24px auto 0;color:var(--red)}
+#attachmentQuiz .attachment-details{font-size:13px;margin-top:24px;border-top:1px solid var(--line);padding-top:16px}
+#attachmentQuiz summary{cursor:pointer;color:var(--red);font-weight:700;padding:8px 0}
+#attachmentQuiz .attachment-details ul{padding-left:22px;margin:12px 0}
+#attachmentQuiz a{color:var(--red);text-underline-offset:3px}
+#attachmentQuiz .attachment-progress-label{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--red);margin:20px 0 6px}
+#attachmentQuiz .attachment-progress{display:block;width:100%;height:8px;border:0;border-radius:99px;background:var(--track);accent-color:var(--red);margin-bottom:24px;overflow:hidden}
+#attachmentQuiz progress::-webkit-progress-bar{background:var(--track)}
+#attachmentQuiz progress::-webkit-progress-value{background:var(--red)}
+#attachmentQuiz progress::-moz-progress-bar{background:var(--red)}
+#attachmentQuiz .attachment-question{border:0;min-width:0}
+#attachmentQuiz legend{font-size:20px;font-weight:800;line-height:1.65;width:100%;margin-bottom:10px;scroll-margin-top:24px}
+#attachmentQuiz .attachment-choices{display:grid;gap:10px;margin:16px 0 24px}
+#attachmentQuiz .attachment-choice{display:flex;align-items:center;gap:12px;min-height:56px;padding:12px 14px;border:1px solid var(--line);border-radius:16px;background:var(--cream);cursor:pointer;font-weight:500;line-height:1.4}
+#attachmentQuiz .attachment-choice input{width:20px;height:20px;flex-shrink:0;accent-color:var(--red)}
+#attachmentQuiz .attachment-choice-number{font-weight:700;color:var(--red)}
+#attachmentQuiz .attachment-choice:has(input:checked){border:2px solid var(--red);padding:11px 13px;background:var(--blush);font-weight:800}
+#attachmentQuiz .attachment-choice:focus-within{outline:3px solid var(--red);outline-offset:3px}
+#attachmentQuiz .attachment-actions{margin:8px 0;align-items:center}
+#attachmentQuiz .attachment-actions>button{flex:1 1 135px;padding:14px 18px}
+#attachmentQuiz .attachment-result-title{font-size:25px;line-height:1.5;margin:10px 0;scroll-margin-top:24px;color:var(--red)}
+#attachmentQuiz .attachment-axis-caption{color:var(--muted);font-size:13px}
+#attachmentQuiz .attachment-scores{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}
+#attachmentQuiz .attachment-scores>div{border-top:2px solid var(--line);padding-top:12px}
+#attachmentQuiz .attachment-scores strong{display:block;font-size:32px;line-height:1.5;color:var(--red)}
+#attachmentQuiz .attachment-scores small{font-size:14px;color:var(--muted)}
+#attachmentQuiz .attachment-scores p{font-size:12px;color:var(--muted)}
+#attachmentQuiz .attachment-map{padding:16px;border:1px solid var(--line);border-radius:20px;margin:20px 0 26px;background:var(--cream)}
+#attachmentQuiz .attachment-map-top{text-align:center;font-size:12px;color:var(--muted)}
+#attachmentQuiz .attachment-plot{position:relative;display:grid;grid-template-columns:1fr 1fr;aspect-ratio:1.5;margin:16px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+#attachmentQuiz .attachment-plot span{display:grid;place-items:center;font-size:13px;color:var(--muted)}
+#attachmentQuiz .attachment-plot span:nth-child(odd){border-right:1px dashed var(--line)}
+#attachmentQuiz .attachment-plot span:nth-child(-n+2){border-bottom:1px dashed var(--line)}
+#attachmentQuiz .attachment-marker{position:absolute;width:18px;height:18px;transform:translate(-50%,-50%);border-radius:50%;background:var(--red);border:3px solid var(--paper);box-shadow:0 0 0 2px var(--red)}
+#attachmentQuiz .attachment-map-bottom{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted)}
+#attachmentQuiz .attachment-practices{padding-left:22px;margin:12px 0 22px;font-size:14px}
+#attachmentQuiz .attachment-practices li{margin-bottom:10px;padding-left:3px}
+#attachmentQuiz .attachment-prompt{padding:16px;border:1px solid var(--ring-a);border-radius:16px;margin:18px 0}
+#attachmentQuiz .attachment-prompt strong{color:var(--red);font-size:13px}
+#attachmentQuiz .attachment-prompt p{margin:8px 0 0}
+#attachmentQuiz .attachment-fallback{font-size:13px;color:var(--ink)}
+#attachmentQuiz textarea{display:block;width:100%;font:inherit;color:var(--ink);background:var(--cream);padding:12px;border:1px solid var(--line);border-radius:12px}
+#attachmentQuiz [hidden]{display:none!important}
+#attachmentQuiz button:focus-visible,#attachmentQuiz summary:focus-visible,#attachmentQuiz a:focus-visible,.attachment-entry button:focus-visible{outline:3px solid var(--red);outline-offset:4px}
+#attachmentQuiz [tabindex="-1"]:focus{outline:none}
+@media(max-width:380px){#attachmentQuiz{padding:18px 14px}.attachment-entry{padding:18px}#attachmentQuiz legend{font-size:18px}#attachmentQuiz .attachment-map{padding:12px}#attachmentQuiz .attachment-plot{aspect-ratio:1.2}}
+@media(prefers-reduced-motion:reduce){#attachmentQuiz,#attachmentQuiz *,.attachment-entry,.attachment-entry *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
